@@ -24,9 +24,6 @@ class RegisterAccountScreen extends StatelessWidget {
     String? accountType="Customer";
 
 
-
-
-
     final partyTypes = ['Customer', 'Supplier', 'Other'];
     return Scaffold(
       backgroundColor: Colors.white,

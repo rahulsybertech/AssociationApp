@@ -98,7 +98,7 @@ class Logincontroller extends GetxController {
           GetStorage().write('accountType', accountType);
 
           // Show OTP bottom sheet
-          Get.toNamed(RouteConstant.homeScreen);;
+          Get.toNamed(RouteConstant.homeScreen);
         } else {
           // Handle error scenario from the API response
           final errorMessage = data['message'] ?? 'Login failed';
@@ -112,6 +112,30 @@ class Logincontroller extends GetxController {
       showSnackBar('Login Error: $e');
     } finally {
       isDataLoading.value = false;
+    }
+  }
+
+  Future<void> callAccessWithoutLogin() async {
+
+    final response = await APIService.accessWithoutLogin();
+    isDataLoading.value = false;
+
+    if (response != null && response['success'] == true) {
+      final accessToken = response['data']['accessToken'];
+      final mobileNo = response['data']['mobileNo'];
+      final accountType = response['data']['accountType'];
+
+      // Store user info
+      GetStorage().write('token', accessToken);
+      GetStorage().write('mobileNo', mobileNo);
+      GetStorage().write('accountType', accountType);
+
+      // Navigate to home screen
+      Get.toNamed(RouteConstant.homeScreen);
+    }
+    else {
+      // ❌ Show message
+      print("Access failed: ${response?['ResponseMessage'] ?? 'Unknown error'}");
     }
   }
 

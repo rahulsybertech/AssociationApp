@@ -41,6 +41,8 @@ class homeScreen extends StatelessWidget {
     ]
         : [
       {"icon": "assets/icons/honhar.png", "label": "Honhar khiladi"},
+
+
       {"icon": "assets/icons/accounts.png", "label": "Add Accounts"},
       {"icon": "assets/icons/bad.png", "label": "Dispute Details"},
       {"icon": "assets/icons/bad.png", "label": "Update Banners"},
@@ -53,7 +55,12 @@ class homeScreen extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-        leading: const Icon(Icons.arrow_back, color: Colors.black),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+
+          },
+        ),
         title:   Image.asset(
         'assets/icons/app_icon.png',
         width: 40,
@@ -133,8 +140,8 @@ class homeScreen extends StatelessWidget {
                         case 'Dispute Details':
                           Get.toNamed(RouteConstant.disputeDetailsScreen);
                           break;
-                          case 'Update Banner':
-                          Get.toNamed(RouteConstant.registerAccountScreen);
+                          case 'Update Banners':
+                          Get.toNamed(RouteConstant.bannerScreen);
                           break;
                       // Add more cases as needed
                         default:

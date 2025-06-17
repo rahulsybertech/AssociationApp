@@ -7,6 +7,7 @@ import 'package:newapp/routes.dart';
 import 'package:newapp/screen/DisputeDetailsScreen.dart';
 import 'package:newapp/screen/RegisterAccountScreen.dart';
 import 'package:newapp/screen/SplashScreen.dart';
+import 'package:newapp/screen/bannerScreen.dart';
 import 'package:newapp/screen/detailsScreen.dart';
 import 'package:newapp/screen/homeScreen.dart';
 import 'package:newapp/screen/honharKhiladiScreen.dart';
@@ -73,6 +74,11 @@ List<GetPage> getPages = [
   GetPage(
     name: RouteConstant.detailsScreen,
     page: () => const detailsScreen(),
+    transition: Transition.noTransition,
+  ),
+  GetPage(
+    name: RouteConstant.bannerScreen,
+    page: () => const bannerScreen(),
     transition: Transition.noTransition,
   ),
 

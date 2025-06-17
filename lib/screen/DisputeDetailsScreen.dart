@@ -42,7 +42,6 @@ class DisputeDetailsScreen extends StatelessWidget {
                     .toList(),
                 onChanged: (val) {
                   controller.customerId.value = val!.id.toString(); // ✅ Correct
-
                   controller.selectedCustomer.value = val! as String;
 
                 },
@@ -69,41 +68,46 @@ class DisputeDetailsScreen extends StatelessWidget {
                     .toList(),
                 onChanged: (val) {
                   controller.supplierId.value = val!.id.toString();
-                  controller.selectedCustomer.value = val! as String;
+             //     controller.selectedCustomer.value = val as String;
+                 controller. getDisputeDetails();
                 },
                 decoration: InputDecoration(
-                  labelText: 'Select Customer',
+                  labelText: 'Select Supplier',
                   border: OutlineInputBorder(),
                 ),
                 validator: (val) =>
-                val == null ? 'Select a customer' : null,
+                val == null ? 'Select a Supplier' : null,
               )),
               const SizedBox(height: 12),
 
               // Disputed Amount
-              TextFormField(
+              Obx(() => TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Disputed Amt.',
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
-                onChanged: (val) => controller.disputedAmount.value = val,
-                validator: (val) =>
-                val == null || val.isEmpty ? 'Enter disputed amount' : null,
-              ),
-              const SizedBox(height: 12),
+                controller: TextEditingController(text: controller.disputeAmt.value)
+                  ..selection = TextSelection.collapsed(offset: controller.disputeAmt.value.length),
+                onChanged: (val) {
+                  controller.disputeAmt.value = val; // allow empty string
+                },
+              )),
 
+              const SizedBox(height: 12),
               // Settled Amount
-              TextFormField(
+              Obx(() => TextFormField(
                 decoration: const InputDecoration(
-                  labelText: 'Settled Amt.',
+                  labelText: 'Disputed Amt.',
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
-                onChanged: (val) => controller.settledAmount.value = val,
-                validator: (val) =>
-                val == null || val.isEmpty ? 'Enter settled amount' : null,
-              ),
+                controller: TextEditingController(text: controller.settelledAmt.value)
+                  ..selection = TextSelection.collapsed(offset: controller.settelledAmt.value.length),
+                onChanged: (val) {
+                  controller.settelledAmt.value = val; // allow empty string
+                },
+              )),
               const SizedBox(height: 12),
 
               // Upload File

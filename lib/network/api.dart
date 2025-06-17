@@ -1,5 +1,6 @@
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:newapp/model/DisputeDetailsModel.dart';
 import 'package:newapp/screen/honharKhiladiScreen.dart';
 import 'dart:convert';
 import 'dart:developer';
@@ -241,6 +242,72 @@ class APIService {
       log('Login Exception: $e');
       return null;
     }
+  }
+
+  static const String baseUrl = 'https://association.ssspltd.com/api';
+
+  static Future<Map<String, dynamic>?> accessWithoutLogin() async {
+    try {
+      final url = Uri.parse('$baseUrl/Login/accessWithoutLogin');
+
+      final response = await http.post(
+        url,
+        headers: {
+          'accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        log('✅ Login Success: ${jsonEncode(data)}');
+        return data;
+      } else {
+        log('❌ Login Error: ${response.statusCode} - ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      log('🚨 Login Exception: $e');
+      return null;
+    }
+  }
+
+
+  Future<DisputeDetailsModel?> getDisputeDetailData(String customerId,String supplierId, String token) async {
+
+        try {
+        final url = Uri.parse(
+            'https://association.ssspltd.com/api/Account/GetDisputeDetailData?customerId=$customerId&supplierId=$supplierId');
+        print('Req: ${url}');
+        final response = await http.post(
+          url,
+          headers: {
+            'Accept': '*/*',
+            'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
+          },
+          body: '', // required empty body
+        );
+
+        if (response.statusCode == 200) {
+          final Map<String, dynamic> json = jsonDecode(response.body);
+          print('Response: ${response.body}');
+          print('Success flag: ${json['success']}');
+          print('Data content: ${json['data']}');
+
+          if (json['success'] == true && json['data'] != null) {
+            final model = DisputeDetailsModel.fromJson(json['data']);
+            print('Parsed Model: $model');
+            return model;
+          } else {
+            showSnackBar(json['message'] ?? 'Unexpected response');
+            return null;
+          }
+        }
+      } catch (e) {
+          log('Exception: $e');
+          showSnackBar('Something went wrong');
+          return null;
+        }
   }
 
 

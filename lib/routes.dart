@@ -7,6 +7,7 @@ class RouteConstant {
   static const String registerAccountScreen = '/registerAccountScreen';
   static const String disputeDetailsScreen = '/disputeDetailsScreen';
   static const String detailsScreen = '/detailsScreen';
+  static const String bannerScreen = '/bannerScreen';
   static const String quizScreen = '/quizScreen';
   static const String resultScreen = '/resultScreen';
   static const String orderScreen = '/orderScreen';

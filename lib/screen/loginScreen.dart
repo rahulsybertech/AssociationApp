@@ -86,10 +86,10 @@ class loginScreen extends StatelessWidget {
               const SizedBox(height: 10),
               TextButton(
                 onPressed: () {
-                  // Your skip logic
+                  controller.callAccessWithoutLogin();
                 },
                 child: Text(
-                  'Skip Now',
+                  'Contuine without login',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,

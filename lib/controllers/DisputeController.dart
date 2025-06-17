@@ -5,6 +5,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:newapp/model/DisputeDetailsModel.dart';
 import 'package:newapp/network/api.dart';
 import 'package:newapp/utils/utils.dart';
 
@@ -40,10 +41,11 @@ class DisputeController extends GetxController {
     isDataLoading.value = true;
 
     final url = Uri.parse('https://association.ssspltd.com/api/Account/SaveUpdateDisputeDetail');
-
+    print("URl"+url.toString());
     final box = GetStorage();
     String? token = box.read('token');
     String? accountCate = box.read('accountType');
+
 
     final headers = {
       'accept': '*/*',
@@ -55,16 +57,17 @@ class DisputeController extends GetxController {
   }
 
     final body = jsonEncode({
-      "id": 0,
+      "id": recordId.value,
       "customerId": customerId.value,
       "supplierId": supplierId.value,
-      "disputeAmt": disputedAmount.value,
-      "settelledAmt": settledAmount.value,
+      "disputeAmt": disputeAmt.value,
+      "settelledAmt":settelledAmt .value,
       "disputeImagePath": "",
     });
-
+    print("Body"+body.toString());
     try {
       final response = await http.post(url, headers: headers, body: body);
+
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -112,7 +115,7 @@ class DisputeController extends GetxController {
 
     try {
       final List<Map<String, dynamic>>? dataList = await apiService.customerList(type, token);
-
+      print(dataList.toString());
       if (dataList != null && dataList.isNotEmpty) {
         if (type == 'Customer') {
           customerList.value = dataList.map((e) => CustomerList.fromJson(e)).toList();
@@ -131,6 +134,40 @@ class DisputeController extends GetxController {
       showSnackBar('Failed to fetch data: $e');
     }
   }
+
+
+  final disputeAmt = ''.obs;
+  var settelledAmt = ''.obs;
+  var recordId = ''.obs;
+
+  Future<void> getDisputeDetails() async {
+    isDataLoading.value = true;
+
+    final APIService apiService = APIService();
+    final box = GetStorage();
+    String? token = box.read('token');
+
+    try {
+      final DisputeDetailsModel? model =
+      await apiService.getDisputeDetailData(customerId.toString(), supplierId.toString(), token!);
+
+      isDataLoading.value = false;
+
+      if (model != null) {
+        disputeAmt.value = model.disputeAmt;
+        settelledAmt.value = model.settelledAmt;
+        recordId.value = model.id.toString();
+      } else {
+        disputeAmt.value = "";
+        settelledAmt.value = "";
+        showSnackBar('No records found.');
+      }
+    } catch (e) {
+      isDataLoading.value = false;
+      showSnackBar('Failed to fetch data: $e');
+    }
+  }
+
 
 
   final formKey = GlobalKey<FormState>();
@@ -161,20 +198,6 @@ class DisputeController extends GetxController {
      // Get.snackbar('Success', 'Dispute saved');
     }
   }
-
-  /*void clearFormFields() {
-    selectedCustomer.clear();
-    ownerNameController.clear();
-    mobileController.clear();
-    addressController.clear();
-    categoryController.clear();
-*//*    stationController.clear();
-    stateNameController.clear();*//*
-    gstController.clear();
-    // Clear image paths if needed
-    *//*accountImagePath.value = '';
-    shopImagePath.value = '';*//*
-  }*/
 }
 
 
