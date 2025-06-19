@@ -13,6 +13,7 @@ import 'package:newapp/utils/utils.dart';
 
 class Logincontroller extends GetxController {
   var isDataLoading = false.obs;
+  var isVerifyOtp = false.obs;
 
   var mobileNumber = "Easy".obs; //default easy
   List<dynamic> pastScores = [];
@@ -67,8 +68,53 @@ class Logincontroller extends GetxController {
     }
   }
 
+  Future resendOtp(String mobileNumber) async {
+ //   isDataLoading.value = true;
+
+    try {
+      final url = Uri.parse(
+        'https://association.ssspltd.com/api/Login/ResendOTPDetails?mobileNo=$mobileNumber',
+      );
+
+      final response = await http.post(
+        url,
+        headers: {'accept': 'application/json'},
+        body: '',
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        // Check the "success" field in the response JSON
+        if (data['success'] == true) {
+       /*   final otp = data['data']['otp'];
+
+          final loginStatus = data['data']['loginStatus'];
+*/
+          // Store user info if needed
+      //    GetStorage().write('user_name', name);
+        //  GetStorage().write('token', name);
+     //     showSnackBar(errorMessage);
+          // Show OTP bottom sheet
+        //  showOtpBottomSheet(Get.context!,mobileNumber: mobileNumber,otp: otp);
+        } else {
+          // Handle error scenario from the API response
+          final errorMessage = data['message'] ?? 'Login failed';
+          showSnackBar(errorMessage);
+        }
+      } else {
+        // Non-200 HTTP status
+        showSnackBar('Login failed with status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      showSnackBar('Login Error: $e');
+    } finally {
+     // isVerifyOtp.value = false;
+    }
+  }
+
   Future verifyOTPDetails(String mobileNumber,String otp) async {
-    isDataLoading.value = true;
+    isVerifyOtp.value = true;
 
     try {
       final url = Uri.parse(
@@ -98,7 +144,7 @@ class Logincontroller extends GetxController {
           GetStorage().write('accountType', accountType);
 
           // Show OTP bottom sheet
-          Get.toNamed(RouteConstant.homeScreen);
+          Get.offAllNamed(RouteConstant.homeScreen);
         } else {
           // Handle error scenario from the API response
           final errorMessage = data['message'] ?? 'Login failed';
@@ -111,14 +157,14 @@ class Logincontroller extends GetxController {
     } catch (e) {
       showSnackBar('Login Error: $e');
     } finally {
-      isDataLoading.value = false;
+      isVerifyOtp.value = false;
     }
   }
 
   Future<void> callAccessWithoutLogin() async {
 
     final response = await APIService.accessWithoutLogin();
-    isDataLoading.value = false;
+  //  isDataLoading.value = false;
 
     if (response != null && response['success'] == true) {
       final accessToken = response['data']['accessToken'];

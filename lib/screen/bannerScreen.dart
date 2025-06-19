@@ -8,8 +8,10 @@ import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:newapp/controllers/BannerScreenController.dart';
 import 'package:newapp/controllers/RegisterAccountController.dart';
+import 'package:newapp/routes.dart';
 import 'package:newapp/utils/CrossPlatformImagePicker.dart';
 import 'package:newapp/utils/ImagePickerScreen.dart';
+import 'package:newapp/utils/utils.dart';
 
 
 class bannerScreen extends StatelessWidget {
@@ -29,220 +31,203 @@ class bannerScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: const BackButton(color: Colors.black),
-        actions: const [
+        actions: [
           Padding(
-            padding: EdgeInsets.only(right: 12.0),
-            child: CircleAvatar(
-              backgroundColor: Colors.red,
-              child: Text("AC", style: TextStyle(color: Colors.white)),
+            padding: const EdgeInsets.only(right: 12.0),
+            child: Image.asset(
+              'assets/icons/app_icon.png',
+              width: 36,
+              height: 36,
+              fit: BoxFit.cover, // or BoxFit.contain
             ),
           ),
         ],
+
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              /*const Text("Party Type*", style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),*/
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Obx(() {
+              final File? imageFile = imageController.pickedImage.value;
+              final type = controller.selectedPartyType.value;
 
+              if (imageFile != null) {
+                final bytes = imageFile.readAsBytesSync();
+                base64Image = base64Encode(bytes);
+              }
 
-              Obx(() {
-                final File? imageFile = imageController.pickedImage.value;
-                final type = controller.selectedPartyType.value;
-
-
-                if (imageFile != null) {
-                  final bytes = imageFile.readAsBytesSync(); // Read file bytes
-                  base64Image = base64Encode(bytes);         // Convert to Base64
-                }
-                return Column(
-                  children: [
-                    GestureDetector(
-                        onTap: () {
-                          _showSourcePicker(context); // open camera/gallery picker
-                        },
-                        child:
-                        Row(
-                          children: [
-                            // Account Image
-                            Expanded(
-                              child: Obx(() {
-                                final pickedFile = imageController.pickedImage.value;
-
-                                return DottedBorder(
-                                  color: Colors.red,
-                                  dashPattern: [6, 4],
-                                  borderType: BorderType.RRect,
-                                  radius: const Radius.circular(12),
-                                  child: Container(
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.all(20),
-                                    child: Column(
-                                      children: [
-                                        pickedFile != null
-                                            ? Stack(
-                                          alignment: Alignment.topRight,
-                                          children: [
-                                            ClipRRect(
-                                              borderRadius: BorderRadius.circular(8),
-                                              child: Image.file(
-                                                pickedFile,
-                                                width: 120,
-                                                height: 120,
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                            GestureDetector(
-                                              onTap: () {
-                                                imageController.pickedImage.value = null;
-                                              },
-                                              child: Container(
-                                                padding: const EdgeInsets.all(2),
-                                                decoration: const BoxDecoration(
-                                                  color: Colors.white,
-                                                  shape: BoxShape.circle,
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.black26,
-                                                      blurRadius: 4,
-                                                      offset: Offset(2, 2),
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: const Icon(
-                                                  Icons.close,
-                                                  color: Colors.red,
-                                                  size: 25,
-                                                ),
-                                              ),
+              return Column(
+                children: [
+                  GestureDetector(
+                    onTap: () => _showSourcePicker(context),
+                    child: Expanded(
+                      child: Obx(() {
+                        final pickedFile = imageController.pickedImage.value;
+                        return DottedBorder(
+                          color: Colors.red,
+                          dashPattern: [6, 4],
+                          borderType: BorderType.RRect,
+                          radius: const Radius.circular(12),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              children: [
+                                pickedFile != null
+                                    ? Stack(
+                                  alignment: Alignment.topRight,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.file(
+                                        pickedFile,
+                                        width: 120,
+                                        height: 120,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        imageController.pickedImage.value = null;
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black26,
+                                              blurRadius: 4,
+                                              offset: Offset(2, 2),
                                             ),
                                           ],
-                                        )
-                                            : const Icon(Icons.upload_file, color: Colors.red, size: 40),
-                                        const SizedBox(height: 10),
-                                        Text(
-                                          (type == 'Customer' || type == 'Supplier')
-                                              ? "Account Image"
-                                              : "Upload Document",
-                                          style: const TextStyle(color: Colors.red),
                                         ),
-                                        const SizedBox(height: 5),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              }),
-                            ),
-
-
-                            const SizedBox(width: 10),
-                            // Shop Image
-                            /*   if((type == 'Customer' || type == 'Supplier'))
-                          Expanded(
-                            child: Obx(() {
-                              final pickedFile = imageController.shopImage.value;
-                              return DottedBorder(
-                                color: Colors.red,
-                                dashPattern: [6, 4],
-                                borderType: BorderType.RRect,
-                                radius: const Radius.circular(12),
-                                child: Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.all(20),
-                                  child: Column(
-                                    children: [
-                                      pickedFile != null
-                                          ? ClipRRect(
-                                        borderRadius: BorderRadius.circular(8),
-                                        child: Image.file(
-                                          pickedFile,
-                                          width: 120,
-                                          height: 120,
-                                          fit: BoxFit.cover,
+                                        child: const Icon(
+                                          Icons.close,
+                                          color: Colors.red,
+                                          size: 25,
                                         ),
-                                      )
-                                          : const Icon(Icons.upload_file, color: Colors.red, size: 40),
-
-                                      const SizedBox(height: 10),
-
-                                      // Always show label and size info
-                                      Text(
-                                        (type == 'Customer' || type == 'Supplier')
-                                            ? "Shop Image"
-                                            : "Upload Document",
-                                        style: const TextStyle(color: Colors.red),
                                       ),
-                                      const SizedBox(height: 5),
-                                   *//*   const Text(
-                                        "10.0 MB maximum file size",
-                                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                                      ),*//*
-                                    ],
-                                  ),
+                                    ),
+                                  ],
+                                )
+                                    : const Icon(Icons.upload_file, color: Colors.red, size: 40),
+                                const SizedBox(height: 10),
+                                Text(
+                                  (type == 'Customer' || type == 'Supplier')
+                                      ? "Minimum size should be 800x400 pixels"
+                                      : "Upload Document",
+                                  style: const TextStyle(color: Colors.red),
                                 ),
-                              );
-                            }),
-                          ),*/
-                          ],
-                        )
-
-                    ),
-
-                    const SizedBox(height: 30),
-                    Center(
-                      child: Obx(() {
-                        return ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 16),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
-                          onPressed: controller.isDataLoading.value
-                              ? null // Disable button when loading
-                              : () async {
-                            controller.isDataLoading.value = true;
-                            final File? imageFile = imageController.shopImage.value;
-
-                            final String? base64Image = imageFile != null
-                                ? base64Encode(imageFile.readAsBytesSync())
-                                : null;
-
-
-// Also handle accountType
-                            final String? accountType = controller.selectedPartyType.value.isEmpty
-                                ? null
-                                : controller.selectedPartyType.value;
-
-                         //   bool success = await controller.validation(base64Image, accountType);
-                            controller.isDataLoading.value = false;
-                            controller.base64Image.value = base64Image;
-
-                          /*  if (success) {
-                              // controller.saveUpdateAccountDetails();
-                            }*/
-                          },
-                          child: controller.isDataLoading.value
-                              ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
+                                const SizedBox(height: 5),
+                              ],
                             ),
-                          )
-                              : const Text("SAVE", style: TextStyle(color: Colors.white)),
+                          ),
                         );
                       }),
                     ),
-                  ],
-                );
-              }),
-            ]
+                  ),
 
+                  const SizedBox(height: 30),
+                  Center(
+                    child: Obx(() {
+                      return ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        onPressed: controller.isUploading.value
+                            ? null
+                            : () async {
+                          final File? imageFile = imageController.pickedImage.value;
+
+                          if (imageFile == null) {
+                            showSnackBar('Please select an image');
+                            return;
+                          }
+
+                          controller.isUploading.value = true;
+
+                          try {
+                            final String base64Img = base64Encode(imageFile.readAsBytesSync());
+                            controller.base64Image.value = base64Img;
+
+                            await controller.bannerAddUpdateReq();
+
+                            // ✅ Clear image after successful upload
+                            imageController.pickedImage.value = null;
+                            controller.base64Image.value = '';
+
+                          } catch (e) {
+                            showSnackBar('Error: $e');
+                          } finally {
+                            controller.isUploading.value = false;
+                          }
+                        },
+                        child: controller.isUploading.value
+                            ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                            : const Text("SAVE", style: TextStyle(color: Colors.white)),
+                      );
+                    }),
+
+                  ),
+                ],
+              );
+            }),
+
+            const SizedBox(height: 30),
+
+            /// 🔽 Banner List View (fix layout inside scroll)
+            Obx(() {
+              if (controller.isDataLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (controller.bannerList.isEmpty) {
+                return const Center(child: Text('No data found'));
+              }
+
+              return ListView.builder(
+                shrinkWrap: true, // ✅ Important for Column
+                physics: const NeverScrollableScrollPhysics(), // ✅ Prevents scroll conflict
+                itemCount: controller.bannerList.length,
+                itemBuilder: (context, index) {
+                  final supplier = controller.bannerList[index];
+                  return GestureDetector(
+                    onTap: () {
+                     /* GetStorage().write('id', supplier.id);
+                      Get.toNamed(
+                        RouteConstant.detailsScreen,
+                        arguments: {'id': supplier.id},
+                      );*/
+                    },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _infoRow(supplier.bannerImagePath!),
+                      ],
+                    ),
+
+                  );
+                },
+              );
+            })
+
+          ],
         ),
       ),
+
     );
   }
   void _showSourcePicker(BuildContext context) {
@@ -257,7 +242,7 @@ class bannerScreen extends StatelessWidget {
               title: const Text("Take a Photo"),
               onTap: () {
                 Navigator.pop(context);
-                imagePickerController.pickImage(ImageSource.camera);
+                imagePickerController.pickImage3(ImageSource.camera);
               },
             ),
             ListTile(
@@ -265,7 +250,7 @@ class bannerScreen extends StatelessWidget {
               title: const Text("Choose from Gallery"),
               onTap: () {
                 Navigator.pop(context);
-                imagePickerController.pickImage(ImageSource.gallery);
+                imagePickerController.pickImage3(ImageSource.gallery);
               },
             ),
           ],
@@ -275,23 +260,59 @@ class bannerScreen extends StatelessWidget {
   }
 
 
-  Widget _buildTextField(String label, TextEditingController controller,
-      {TextInputType keyboardType = TextInputType.text}) {
+
+  Widget _infoRow(String icon) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 7),
-      child: TextField(
-        controller: controller,
-        keyboardType: keyboardType,
-        decoration: InputDecoration(
-          labelText: label,
-          filled: true,
-          fillColor: Colors.grey[100],
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+      Expanded(
+        child: Container(
+          height: 180, // fixed height
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 6,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: AspectRatio(
+                  aspectRatio: 2.0,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      icon,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return const Center(child: CircularProgressIndicator());
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Center(child: Icon(Icons.error, color: Colors.red));
+                      },
+                    ),
+                  ),
+                ),
+              )
+
+
+
+            ],
+          ),
         ),
+    ),
+          const SizedBox(width: 10),
+        ],
       ),
     );
   }
-
 
 
 

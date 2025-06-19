@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:newapp/controllers/BannerScreenController.dart';
 
 import '../controllers/HomeController.dart';
 import '../routes.dart';
@@ -22,11 +23,8 @@ class homeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     late final List<Map<String, String>> menuItems;
     final HomeController controller = Get.put(HomeController());
-     final List<String> bannerImages = [
-    'assets/images/image.png',
-    'assets/images/image.png',
-    'assets/images/image.png',
-  ];
+    final BannerScreenController bannerController = Get.put(BannerScreenController());
+
 
     final box = GetStorage();
 
@@ -58,58 +56,86 @@ class homeScreen extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-
+            Navigator.pop(context);
           },
         ),
-        title:   Image.asset(
-        'assets/icons/app_icon.png',
-        width: 40,
-        height: 40,
-      ),
+        title: Image.asset(
+          'assets/icons/app_icon.png',
+          width: 40,
+          height: 40,
+        ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.black),
+            onPressed: () {
+              _showLogoutDialog(context);
+            },
+          ),
+        ],
       ),
+
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // BANNER SLIDER
-            SizedBox(
-              height: size.height * 0.25,
-              child: PageView.builder(
-                itemCount: bannerImages.length,
-                onPageChanged: controller.updatePage,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.asset(
-                        bannerImages[index],
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
             const SizedBox(height: 10),
             // INDICATOR
-            Obx(() => Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(bannerImages.length, (index) {
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: controller.currentPage.value == index ? 12 : 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: controller.currentPage.value == index
-                        ? Colors.redAccent
-                        : Colors.grey.shade400,
+            Column(
+              children: [
+                Obx(() {
+                  if (controller.bannerList.isEmpty) {
+                    return const Center(child: Text("No banners available"));
+                  }
+
+                  return SizedBox(
+                    height: 200,
+                    child: PageView.builder(
+                      controller: controller.pageController,
+                      itemCount: controller.bannerList.length * 1000, // For looping effect
+                      onPageChanged: (index) {
+                        controller.currentPage.value = index % controller.bannerList.length;
+                      },
+                      itemBuilder: (context, index) {
+                        final banner = controller.bannerList[index % controller.bannerList.length];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.network(
+                              banner.bannerImagePath ?? '',
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              errorBuilder: (context, error, stackTrace) =>
+                              const Center(child: Icon(Icons.error, color: Colors.red)),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }),
+
+                const SizedBox(height: 10),
+
+                Obx(() => Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    controller.bannerList.length,
+                        (index) => Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      width: controller.currentPage.value == index ? 12 : 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: controller.currentPage.value == index
+                            ? Colors.red
+                            : Colors.grey.shade400,
+                      ),
+                    ),
                   ),
-                );
-              }),
-            )),
+                )),
+              ],
+            ),
             const SizedBox(height: 20),
 
             // MENU BUTTONS
@@ -185,5 +211,35 @@ class homeScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+  void _showLogoutDialog(BuildContext context) {
+    final controller = Get.find<HomeController>(); // ✅ Access your controller
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              controller.logOutParam();
+              Navigator.of(context).pop(); // close dialog
+            //  _logout(); // call your logout logic
+            },
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    );
+  }
+  void _logout() {
+    final box = GetStorage();
+    box.erase(); // or box.remove('token');
+    Get.offAllNamed('/loginScreen'); // Navigate to login screen
   }
 }

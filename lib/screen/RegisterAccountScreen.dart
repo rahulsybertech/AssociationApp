@@ -33,12 +33,14 @@ class RegisterAccountScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: const BackButton(color: Colors.black),
-        actions: const [
+        actions: [
           Padding(
-            padding: EdgeInsets.only(right: 12.0),
-            child: CircleAvatar(
-              backgroundColor: Colors.red,
-              child: Text("AC", style: TextStyle(color: Colors.white)),
+            padding: const EdgeInsets.only(right: 12.0),
+            child: Image.asset(
+              'assets/icons/app_icon.png',
+              width: 36,
+              height: 36,
+              fit: BoxFit.cover, // or BoxFit.contain
             ),
           ),
         ],

@@ -1,6 +1,7 @@
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:newapp/model/DisputeDetailsModel.dart';
+import 'package:newapp/model/ApiResponse.dart';
 import 'package:newapp/screen/honharKhiladiScreen.dart';
 import 'dart:convert';
 import 'dart:developer';
@@ -14,6 +15,7 @@ class APIService {
       'https://association.ssspltd.com/api';
   static const String apiKey =
       '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';
+
 
   Future<List<Map<String, dynamic>>?> generateMCQs(String difficulty) async {
     try {
@@ -310,6 +312,134 @@ class APIService {
         }
   }
 
+
+  Future<ApiResponse?> addUpdateBanner(String bannerImagePath, String token,) async {
+    print('token: ${token}');
+    try {
+      final url = Uri.parse(
+          'https://association.ssspltd.com/api/Banner/SaveUpdateBannerDetails');
+      print('Url: ${url}');
+
+      final body = jsonEncode({
+        "id": 0,
+        "bannerImagePath": bannerImagePath,
+        "title": "Test  banner",
+
+      });
+      print('Req: ${body}');
+
+      final response = await http.post(url,   headers: {
+        'Accept': '*/*',
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      }, body: body);
+
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> json = jsonDecode(response.body);
+        print('Response: ${response.body}');
+        print('Success flag: ${json['success']}');
+        print('Data content: ${json['data']}');
+
+        if (json['success'] == true) {
+          final data = json['data'];
+          if (data is Map<String, dynamic>) {
+            final model = ApiResponse.fromJson(data);
+            print('Parsed Model: $model');
+            return model;
+          } else {
+            // It's not a model; just show success message
+            showSnackBar(json['message'] ?? 'Operation successful');
+            return null;
+          }
+        } else {
+          showSnackBar(json['message'] ?? 'Unexpected response');
+          return null;
+        }
+      }
+
+    } catch (e) {
+      log('Exception: $e');
+      showSnackBar('Something went wrong');
+      return null;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>?> bannerList( String token) async {
+    try {
+      final url = Uri.parse(
+          'https://association.ssspltd.com/api/Banner/GetBannerDetailsList');
+
+      print('Url: ${url}');
+      final response = await http.post(
+        url,
+        headers: {
+          'Accept': '*/*',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: '', // Required empty body as per your API
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> json = jsonDecode(response.body);
+        print('Res: ${json}');
+        if (json['success'] == true && json['data'] is List) {
+          final List<Map<String, dynamic>> result =
+          List<Map<String, dynamic>>.from(json['data']);
+          return result;
+        } else {
+          showSnackBar(json['message'] ?? 'Unexpected response');
+          return null;
+        }
+      } else {
+        showSnackBar('Error: ${response.statusCode} - ${response.reasonPhrase}');
+        return null;
+      }
+    } catch (e) {
+      log('Exception: $e');
+      showSnackBar('Something went wrong');
+      return null;
+    }
+  }
+
+
+  Future<ApiResponse?> logOut(String mobileNumber, String token) async {
+
+    try {
+      final url = Uri.parse(
+          'https://association.ssspltd.com/api/Login/LogOutUser?mobileNo=$mobileNumber');
+      print('Req: ${url}');
+      final response = await http.post(
+        url,
+        headers: {
+          'Accept': '*/*',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: '', // required empty body
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> json = jsonDecode(response.body);
+
+        // ✅ Success Check
+        if (json['success'] == true) {
+          // ✅ Build ApiResponse directly from full JSON
+          final model = ApiResponse.fromJson(json);
+          print('Parsed Model: $model');
+          return model;
+        } else {
+          showSnackBar(json['message'] ?? 'Unexpected response');
+          return null;
+        }
+      }
+    } catch (e) {
+      log('Exception: $e');
+      showSnackBar('Something went wrong');
+      return null;
+    }
+  }
 
 
 

@@ -25,7 +25,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: "Quiz App",
+      title: "Association"
+          "",
       debugShowCheckedModeBanner: false,
       initialRoute: RouteConstant.startScreen,
       theme: ThemeData(

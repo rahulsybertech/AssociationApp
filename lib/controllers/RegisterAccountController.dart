@@ -85,7 +85,8 @@ class RegisterAccountController extends GetxController {
         print(data);
         if (data['success'] == true) {
           clearFormFields();
-          showSnackBar("Account saved successfully.");
+          Get.back();
+          showSnackBar("Record Save Successfully!!.");
           return true;
         } else {
           showSnackBar(data['message'] ?? "Something went wrong.");
@@ -124,6 +125,11 @@ class RegisterAccountController extends GetxController {
     final gst = gstController.text.trim();
 
     // 1. Check owner name
+
+    if (firmName.isEmpty) {
+      showSnackBar('Enter Firm name');
+      return false;
+    }
     if (ownerName.isEmpty) {
       showSnackBar('Enter owner name');
       return false;

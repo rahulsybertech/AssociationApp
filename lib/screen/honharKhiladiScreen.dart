@@ -25,7 +25,7 @@ class honharKhiladiScreen extends StatelessWidget {
 
     final Honharkhiladicontroller controller = Get.put(Honharkhiladicontroller());
  //   controller.getList();
-    final RxString selectedFilter = 'B SUPPLIER'.obs;
+    final RxString selectedFilter = 'Customer'.obs;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -46,7 +46,7 @@ class honharKhiladiScreen extends StatelessWidget {
                         onTap: () {
                           Get.back(); // or Navigator.pop(context);
                         },
-                        child: const Icon(Icons.arrow_back, color: Colors.black),
+                        child: const Icon(Icons.arrow_back, color: Colors.red),
                       ),
 
                       /// ⬇️ Filter Dropdown (center item)
@@ -59,6 +59,8 @@ class honharKhiladiScreen extends StatelessWidget {
                             onSelected: (value) {
                               selectedFilter.value = value;
                               GetStorage().write('category', value);
+                              controller.searchController.clear(); //  clear the search field
+                              controller.filterHonharList("");     // reset the filtered list
                               controller.getList(value);
                             },
                             itemBuilder: (context) => const [
@@ -99,7 +101,8 @@ class honharKhiladiScreen extends StatelessWidget {
 
                   const SizedBox(height: 20),
                   Container(
-                    height: 50, // <-- Set fixed height here
+                    height: 50,
+                    margin: const EdgeInsets.all(10),
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade100,
@@ -108,12 +111,14 @@ class honharKhiladiScreen extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: TextField(
-                            decoration: InputDecoration(
-                              hintText: 'Search',
+                            controller: controller.searchController,
+                            onChanged: controller.filterHonharList,
+                            decoration: const InputDecoration(
+                              hintText: 'Search by name, station, etc.',
                               border: InputBorder.none,
-                              contentPadding: EdgeInsets.zero, // <-- Keeps vertical size minimal
+                              contentPadding: EdgeInsets.zero,
                             ),
                           ),
                         ),
@@ -122,16 +127,17 @@ class honharKhiladiScreen extends StatelessWidget {
                             color: Colors.red,
                             shape: BoxShape.circle,
                           ),
-                          padding: const EdgeInsets.all(8), // Adjust to center icon nicely
+                          padding: const EdgeInsets.all(8),
                           child: const Icon(Icons.search, color: Colors.white, size: 20),
                         ),
                       ],
                     ),
                   ),
 
+
                   const SizedBox(height: 6),
         Obx(() => Text(
-          "${controller.honharList.length} Records Found",
+          "${controller.filteredList.length} Records Found",
           style: const TextStyle(
             color: Colors.red,
             fontSize: 12,
@@ -148,14 +154,14 @@ class honharKhiladiScreen extends StatelessWidget {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                if (controller.honharList.isEmpty) {
+                if (controller.filteredList.isEmpty) {
                   return const Center(child: Text('No data found'));
                 }
 
                 return ListView.builder(
-                  itemCount: controller.honharList.length,
+                  itemCount: controller.filteredList.length,
                   itemBuilder: (context, index) {
-                    final supplier = controller.honharList[index];
+                    final supplier = controller.filteredList[index];
                     return GestureDetector(
                       onTap: () {
                         // Store user info if needed
@@ -176,10 +182,10 @@ class honharKhiladiScreen extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _infoRow(Icons.person, 'Name', supplier.name),
-                              _infoRow(Icons.phone, 'Mobile', supplier.mobile),
-                              _infoRow(Icons.location_city, 'Station', supplier.station),
-                              _infoRow(Icons.home, 'Address', supplier.address),
+                              _infoRow('assets/icons/user.png', 'Name', supplier.name),
+                              _infoRow('assets/icons/mobile.png', 'Mobile', supplier.mobile),
+                              _infoRow('assets/icons/station.png', 'Station', supplier.station),
+                              _infoRow('assets/icons/home.png', 'Address', supplier.address),
                             ],
                           ),
                         ),
@@ -197,12 +203,17 @@ class honharKhiladiScreen extends StatelessWidget {
     );
   }
 
-  Widget _infoRow(IconData icon, String label, String value) {
+  Widget _infoRow(String assetPath, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: Colors.grey[700]),
+          Image.asset(
+            assetPath,
+            width: 20,
+            height: 20,
+         /*   color: Colors.grey[700], // Optional: tint the image*/
+          ),
           const SizedBox(width: 10),
           Text(
             '$label: ',
@@ -215,5 +226,6 @@ class honharKhiladiScreen extends StatelessWidget {
       ),
     );
   }
+
 }
 

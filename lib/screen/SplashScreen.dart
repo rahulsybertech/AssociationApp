@@ -76,11 +76,16 @@ class _StartScreenState extends State<StartScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const FlutterLogo(size: 100),
+              Image.asset(
+                'assets/icons/app_icon.png',
+                height: 100,
+                width: 100,
+                fit: BoxFit.contain,
+              ),
               const SizedBox(height: 24),
 
               // Play Now Button
-              ElevatedButton(
+           /*   ElevatedButton(
                 onPressed: () {
                   Get.toNamed(RouteConstant.loginScreen);
                 },
@@ -92,12 +97,12 @@ class _StartScreenState extends State<StartScreen> {
                   ),
                 ),
                 child: const CustomText(
-                  text: 'Play Now',
+                  text: 'Start Now',
                   fontSize: 18,
                   fontWeight: FontWeight.normal,
                   textColor: Colors.white,
                 ),
-              ),
+              ),*/
             ],
           ),
         ),

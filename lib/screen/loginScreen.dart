@@ -75,7 +75,7 @@ class loginScreen extends StatelessWidget {
                   textStyle: const TextStyle(fontSize: 18),
                 ),
                 child: controller.isDataLoading.value
-                    ? const Loader(color: purpleColor)
+                    ? const Loader(color: Colors.white)
                     : const CustomText(
                   text: 'Send OTP',
                   fontSize: 15,
@@ -106,13 +106,111 @@ class loginScreen extends StatelessWidget {
   }
 }
 
-
-
-
 void showOtpBottomSheet(BuildContext context, {
   required String mobileNumber,
   required String otp,
 }) {
+  final TextEditingController otpController = TextEditingController();
+  final Logincontroller controller = Get.put(Logincontroller());
+  RxInt seconds = 60.obs;
+
+  // Timer countdown
+  Timer? timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    if (seconds.value > 0) {
+      seconds.value--;
+    } else {
+      timer.cancel();
+    }
+  });
+
+  final OtpController otpcontrollerNew = Get.put(OtpController());
+  otpcontrollerNew.startOTPTimer(); // Start the timer before showing bottom sheet
+
+  Get.bottomSheet(
+    Container(
+      padding: const EdgeInsets.all(20),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text("Enter 4-digit OTP", style: TextStyle(fontSize: 18)),
+          const SizedBox(height: 20),
+          TextField(
+            controller: otpcontrollerNew.otpController,
+            maxLength: 4,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: "OTP",
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Obx(() => GestureDetector(
+            onTap: otpcontrollerNew.isResendEnabled.value
+                ? () => otpcontrollerNew.resendOtp(mobileNumber)
+                : null,
+            child: Text(
+              otpcontrollerNew.timerText.value,
+              style: TextStyle(
+                color: otpcontrollerNew.isResendEnabled.value
+                    ? Colors.blue
+                    : Colors.grey,
+                decoration: otpcontrollerNew.isResendEnabled.value
+                    ? TextDecoration.underline
+                    : null,
+              ),
+            ),
+          )),
+          const SizedBox(height: 20),
+          Obx(() => ElevatedButton(
+            onPressed: () {
+              final enteredOtp = otpcontrollerNew.otpController.text.trim();
+
+              if (enteredOtp.isEmpty) {
+                showSnackBar('Please enter your OTP');
+                return;
+              }
+
+              controller.verifyOTPDetails(
+                mobileNumber,
+                enteredOtp,
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.pinkAccent,
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+              textStyle: const TextStyle(fontSize: 18),
+            ),
+            child: controller.isVerifyOtp.value
+                ? const Loader(color: Colors.white) // 👈 show loader
+                : const CustomText(
+              text: 'Verify OTP',
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              textColor: Colors.white,
+            ),
+          ))
+
+
+        ],
+      ),
+    ),
+    isScrollControlled: true,
+  );
+
+
+}
+
+
+
+/*void showOtpBottomSheet(BuildContext context, {
+  required String mobileNumber,
+  required String otp,
+})
+{
   final TextEditingController otpController = TextEditingController();
   final Logincontroller controller = Get.put(Logincontroller());
   RxInt seconds = 60.obs;
@@ -152,7 +250,9 @@ void showOtpBottomSheet(BuildContext context, {
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-              if (otpController.text == otp) {
+              controller.verifyOTPDetails(mobileNumber,otpController.text);
+              showSnackBar('OTP Verified');
+              *//*if (otpController.text == otp) {
                 Get.back(); // close bottom sheet
                 controller.verifyOTPDetails(mobileNumber,otpController.text);
                 showSnackBar('OTP Verified');
@@ -161,7 +261,7 @@ void showOtpBottomSheet(BuildContext context, {
                 // Proceed to next screen
               } else {
                 showSnackBar('Invalid OTP');
-              }
+              }*//*
             },
             child: const Text("Verify OTP"),
           ),
@@ -170,15 +270,15 @@ void showOtpBottomSheet(BuildContext context, {
     ),
     isScrollControlled: true,
   );
-}
+}*/
 
-void goNextScreen(BuildContext context, {required String otp}) {
+/*void goNextScreen(BuildContext context, {required String otp}) {
   final TextEditingController otpController = TextEditingController();
   Get.toNamed(RouteConstant.homeScreen);
-}
+}*/
 
 
-class OtpController extends GetxController {
+/*class OtpController extends GetxController {
   final otpController = TextEditingController();
   final isOtpValid = false.obs;
   final timerText = "01:00".obs;
@@ -225,6 +325,60 @@ class OtpController extends GetxController {
   void onClose() {
     otpController.dispose();
     _timer.cancel();
+    super.onClose();
+  }
+}*/
+
+void goNextScreen(BuildContext context, {required String otp}) {
+  final TextEditingController otpController = TextEditingController();
+  Get.toNamed(RouteConstant.homeScreen);
+}
+
+
+class OtpController extends GetxController {
+  RxInt seconds = 60.obs;
+  RxString timerText = "Resend in 60s".obs;
+  RxBool isResendEnabled = false.obs;
+  Timer? timer;
+
+  TextEditingController otpController = TextEditingController();
+  Logincontroller logincontroller = Logincontroller();
+
+  void startOTPTimer() {
+    seconds.value = 60;
+    isResendEnabled.value = false;
+    timerText.value = "Resend in 60s";
+
+    timer?.cancel();
+    timer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (seconds.value > 0) {
+        seconds.value--;
+        timerText.value = "Resend in ${seconds.value}s";
+      } else {
+        t.cancel();
+        isResendEnabled.value = true;
+        timerText.value = "Resend OTP";
+      }
+    });
+  }
+
+  Future<void> resendOtp(String mobileNumber) async {
+    if (!isResendEnabled.value) return;
+
+    isResendEnabled.value = false;
+    timerText.value = "Sending OTP...";
+    logincontroller.resendOtp(mobileNumber);
+    // Call your actual resend OTP API here
+    await Future.delayed(const Duration(seconds: 1)); // simulate delay
+
+
+    startOTPTimer(); // Restart the timer
+  }
+
+  @override
+  void onClose() {
+    timer?.cancel();
+    otpController.dispose();
     super.onClose();
   }
 }

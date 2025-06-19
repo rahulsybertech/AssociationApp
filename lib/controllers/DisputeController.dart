@@ -20,6 +20,7 @@ class DisputeController extends GetxController {
   var selectedFileName = ''.obs;
   var imagePath = ''.obs;
   var isDataLoading = false.obs;
+  var isSaveLoading = false.obs;
 
 
  /* final RxList<CustomerList> customerList = <CustomerList>[].obs;
@@ -38,7 +39,7 @@ class DisputeController extends GetxController {
   Future<bool> saveUpdateAccountDetails(
   ) async
   {
-    isDataLoading.value = true;
+    isSaveLoading.value = true;
 
     final url = Uri.parse('https://association.ssspltd.com/api/Account/SaveUpdateDisputeDetail');
     print("URl"+url.toString());
@@ -57,12 +58,12 @@ class DisputeController extends GetxController {
   }
 
     final body = jsonEncode({
-      "id": recordId.value,
+      "id": recordId.value.isEmpty ? 0 : recordId.value,
       "customerId": customerId.value,
       "supplierId": supplierId.value,
       "disputeAmt": disputeAmt.value,
       "settelledAmt":settelledAmt .value,
-      "disputeImagePath": "",
+      "disputeImagePath": selectedFileName.value,
     });
     print("Body"+body.toString());
     try {
@@ -74,7 +75,8 @@ class DisputeController extends GetxController {
         print(data);
         if (data['success'] == true) {
         //  clearFormFields();
-          showSnackBar("Account saved successfully.");
+          Get.back();
+          showSnackBar("Record Save Successfully!!.");
           return true;
         } else {
           showSnackBar(data['message'] ?? "Something went wrong.");
@@ -86,7 +88,7 @@ class DisputeController extends GetxController {
       print(e);
       showSnackBar("Error: $e");
     } finally {
-      isDataLoading.value = false;
+      isSaveLoading.value = false;
     }
 
     return false;
@@ -191,13 +193,30 @@ class DisputeController extends GetxController {
     }
   }
 
-  void saveDispute() {
+  void saveDispute() async {
     if (formKey.currentState?.validate() ?? false) {
-      // Logic here
-      saveUpdateAccountDetails();
-     // Get.snackbar('Success', 'Dispute saved');
+      if (disputeAmt.value.isEmpty) {
+        showSnackBar('Enter disputed amt.');
+        return;
+      } else if (settelledAmt.value.isEmpty) {
+        showSnackBar('No settled amt.');
+        return;
+      }
+
+      try {
+        isDataLoading.value = true; // ✅ Show loader
+
+        await saveUpdateAccountDetails(); // 👈 This should be an async method
+
+        Get.snackbar('Success', 'Dispute saved');
+      } catch (e) {
+        showSnackBar('Something went wrong');
+      } finally {
+        isDataLoading.value = false; // ✅ Hide loader
+      }
     }
   }
+
 }
 
 

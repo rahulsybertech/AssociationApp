@@ -3,6 +3,8 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:newapp/controllers/DisputeController.dart';
+import 'package:newapp/customWidgets/customLoader.dart';
+import 'package:newapp/customWidgets/customText.dart';
 
 
 class DisputeDetailsScreen extends StatelessWidget {
@@ -18,8 +20,13 @@ class DisputeDetailsScreen extends StatelessWidget {
         leading: BackButton(),
         actions: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CircleAvatar(child: Icon(Icons.account_circle)),
+            padding: const EdgeInsets.only(right: 12.0),
+            child: Image.asset(
+              'assets/icons/app_icon.png',
+              width: 36,
+              height: 36,
+              fit: BoxFit.cover, // or BoxFit.contain
+            ),
           ),
         ],
       ),
@@ -98,7 +105,7 @@ class DisputeDetailsScreen extends StatelessWidget {
               // Settled Amount
               Obx(() => TextFormField(
                 decoration: const InputDecoration(
-                  labelText: 'Disputed Amt.',
+                  labelText: 'Settelled Amt.',
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
@@ -132,16 +139,24 @@ class DisputeDetailsScreen extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Save Button
-              ElevatedButton(
+              Obx(() => ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 50, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 12),
                 ),
                 onPressed: controller.saveDispute,
-                child: const Text('SAVE'),
-              )
+                child: controller.isSaveLoading.value
+                    ? const Loader(color: Colors.white)
+                    : const CustomText(
+                  text: 'SAVE',
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  textColor: Colors.white,
+                ),
+              ))
+
             ],
+
           ),
         ),
       ),

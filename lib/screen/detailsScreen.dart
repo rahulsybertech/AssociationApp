@@ -10,6 +10,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart' as box;
 import 'package:newapp/controllers/detailsController.dart';
 import 'package:newapp/customWidgets/customText.dart';
+import 'package:newapp/utils/FullyCustomAppBar.dart';
 import 'package:newapp/utils/appcolors.dart';
 
 import '../controllers/HomeController.dart';
@@ -35,139 +36,103 @@ class detailsScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // 🔺 Custom App Bar with Back + Warning Icon
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Obx(() => Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.arrow_back, color: Colors.red),
-                            onPressed: () => Get.back(),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            controller.category.value,
-                            style: const TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      )),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.red.shade100,
-                          shape: BoxShape.circle,
-                        ),
-                        padding: const EdgeInsets.all(8),
-                        child: const Icon(Icons.warning_amber_rounded, color: Colors.red),
-                      ),
-                    ],
+            AppBar(
+              title:   Text(
+                controller.category.value == "Supplier" ? "Customer" : "Supplier",
+          style: const TextStyle(
+            color: Colors.black
+            ,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+              centerTitle: true,
+              backgroundColor: Colors.white,
+              elevation: 0,
+              leading: const BackButton(color: Colors.black),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 12.0),
+                  child: Image.asset(
+                    'assets/icons/app_icon.png',
+                    width: 36,
+                    height: 36,
+                    fit: BoxFit.cover, // or BoxFit.contain
                   ),
-                  const SizedBox(height: 20),
+                ),
+              ],
 
-                  // 🔍 Search Field
-                  Container(
-                    height: 50,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(color: Colors.red.shade100),
-                    ),
-                    child: Row(
-                      children: [
-                        const Expanded(
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: 'Search',
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          padding: const EdgeInsets.all(8),
-                          child: const Icon(Icons.search, color: Colors.white, size: 20),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-
-                  // 🧾 Count Text
-                  Obx(() => Text(
-                    "${controller.honharList.length} Records Found",
-                    style: const TextStyle(color: Colors.red, fontSize: 12),
-                  )),
-                ],
-              ),
             ),
-
+            SizedBox(height: 10),
             // 🔽 Supplier List
             Expanded(
-              child: Obx(() => ListView.builder(
-                itemCount: controller.honharList.length,
-                itemBuilder: (context, index) {
-                  final supplier = controller.honharList[index];
-                  return Card(
-                    margin: const EdgeInsets.all(10),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    elevation: 3,
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _infoRow(Icons.business, 'Firm Name', supplier.name),
-                          _infoRow(Icons.phone, 'Mobile No.', supplier.mobile),
-                       //   _infoRow(Icons.account_balance_wallet, 'GST', supplier.gstNo ?? '-'),
-                      //    _infoRow(Icons.account_balance_wallet, 'GST', ),
-                          _infoRow(Icons.person, 'GST', supplier.gstNo),
-                         _infoRow(Icons.person, 'Owner Name', supplier.name ?? '-'),
-                          _infoRow(Icons.location_city, 'Station', supplier.station),
-                          _infoRow(Icons.home, 'Address', supplier.address),
+              child: Obx(() {
+                if (controller.isDataLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-                          // 🌍 State Name + Amount Cards
-                          const SizedBox(height: 10),
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: [
-                                _infoCard(
-                                  'assets/icons/accounts.png',
-                                  'Dispute Amount',
-                                  supplier.disputeAmt.toString()+ '/-',
-                                  context,
-                                ),
-                                const SizedBox(width: 12),
-                                _infoCard(
-                                  'assets/icons/accounts.png',
-                                  'Part Payment',
-                                    supplier.settelledAmt.toString()+ '/-',
-                                  context,
-                                ),
-                              ],
+                if (controller.honharList.isEmpty) {
+                  return const Center(child: Text('No data found'));
+                }
+
+                return ListView.builder(
+                  itemCount: controller.honharList.length,
+                  itemBuilder: (context, index) {
+                    final supplier = controller.honharList[index];
+                    return Card(
+                      margin: const EdgeInsets.all(10),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      elevation: 3,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _infoRow(
+                              'assets/icons/user.png',
+                              (controller.category.value == "Supplier" ? "Customer" : "Supplier") + ' Name',
+                              supplier.name,
                             ),
-                          )
-                        ],
+                            _infoRow('assets/icons/mobile.png', 'Mobile No.', supplier.mobile),
+                            //   _infoRow(Icons.account_balance_wallet, 'GST', supplier.gstNo ?? '-'),
+
+                            //    _infoRow(Icons.account_balance_wallet, 'GST', ),
+                            _infoRow('assets/icons/gst.png', 'GST', supplier.gstNo),
+                            _infoRow('assets/icons/user.png', 'Owner Name', supplier.name ?? '-'),
+                            _infoRow('assets/icons/station.png', 'Station', supplier.station),
+                            _infoRow('assets/icons/home.png', 'Address', supplier.address),
+
+                            // 🌍 State Name + Amount Cards
+                            const SizedBox(height: 10),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: [
+                                  _infoCard(
+                                    'assets/icons/dispute.png',
+                                    'Dispute Amount',
+                                    supplier.disputeAmt.toString()+ '/-',
+                                    context,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  _infoCard(
+                                    'assets/icons/part_payment.png',
+                                    'Part Payment',
+                                    supplier.settelledAmt.toString()+ '/-',
+                                    context,
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              )),
+                    );
+                  },
+                );
+
+              }),
             ),
           ],
         ),
@@ -232,13 +197,18 @@ class detailsScreen extends StatelessWidget {
 
 
 
-  Widget _infoRow(IconData icon, String title, String value) {
+  Widget _infoRow(String icon, String title, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: Colors.black87),
+          Image.asset(
+            icon,
+            width: 20,
+            height: 20,
+            /*   color: Colors.grey[700], // Optional: tint the image*/
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: RichText(

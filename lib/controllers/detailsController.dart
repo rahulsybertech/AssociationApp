@@ -46,6 +46,14 @@ class detailsController extends GetxController {
 
     selectedcategory.value = type; // ✅ Set the selected category
 
+
+// If category is null or empty, assign 'customer'
+    if (category == null || category.isEmpty) {
+      category = 'Customer';
+    }
+
+
+
     try {
       final List<Map<String, dynamic>>? mcqs =
      await apiService.disputeDetailsByAccountId(category!,id!, token!);
