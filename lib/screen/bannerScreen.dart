@@ -21,6 +21,8 @@ class bannerScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final BannerScreenController controller = Get.put(BannerScreenController());
     final ImagePickerController imageController = Get.put(ImagePickerController());
+    final GlobalKey imageKey = GlobalKey();
+    final ScrollController scrollController = ScrollController();
     String? base64Image;
 
     return Scaffold(
@@ -60,74 +62,60 @@ class bannerScreen extends StatelessWidget {
 
               return Column(
                 children: [
+
+               /*   if (controller.bannerList.length<5)*/
                   GestureDetector(
                     onTap: () => _showSourcePicker(context),
                     child: Expanded(
-                      child: Obx(() {
+                      child:
+                      Obx(() {
                         final pickedFile = imageController.pickedImage.value;
-                        return DottedBorder(
-                          color: Colors.red,
-                          dashPattern: [6, 4],
-                          borderType: BorderType.RRect,
-                          radius: const Radius.circular(12),
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              children: [
-                                pickedFile != null
-                                    ? Stack(
-                                  alignment: Alignment.topRight,
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: Image.file(
-                                        pickedFile,
-                                        width: 120,
-                                        height: 120,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        imageController.pickedImage.value = null;
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(2),
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black26,
-                                              blurRadius: 4,
-                                              offset: Offset(2, 2),
-                                            ),
-                                          ],
-                                        ),
-                                        child: const Icon(
-                                          Icons.close,
-                                          color: Colors.red,
-                                          size: 25,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                                    : const Icon(Icons.upload_file, color: Colors.red, size: 40),
-                                const SizedBox(height: 10),
-                                Text(
-                                  (type == 'Customer' || type == 'Supplier')
-                                      ? "Minimum size should be 800x400 pixels"
-                                      : "Upload Document",
-                                  style: const TextStyle(color: Colors.red),
+
+                        return Container(
+                          key: imageKey, // 👈 Add the key here
+                          child: pickedFile != null
+                              ? Stack(
+                            alignment: Alignment.topRight,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.file(
+                                  pickedFile,
+                                  width: 120,
+                                  height: 120,
+                                  fit: BoxFit.cover,
                                 ),
-                                const SizedBox(height: 5),
-                              ],
-                            ),
-                          ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  imageController.pickedImage.value = null;
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black26,
+                                        blurRadius: 4,
+                                        offset: Offset(2, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    Icons.close,
+                                    color: Colors.red,
+                                    size: 25,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                              : const Icon(Icons.upload_file, color: Colors.red, size: 40),
                         );
-                      }),
+                      })
+
                     ),
                   ),
 
@@ -199,30 +187,64 @@ class bannerScreen extends StatelessWidget {
               }
 
               return ListView.builder(
-                shrinkWrap: true, // ✅ Important for Column
-                physics: const NeverScrollableScrollPhysics(), // ✅ Prevents scroll conflict
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: controller.bannerList.length,
                 itemBuilder: (context, index) {
                   final supplier = controller.bannerList[index];
-                  return GestureDetector(
-                    onTap: () {
-                     /* GetStorage().write('id', supplier.id);
-                      Get.toNamed(
-                        RouteConstant.detailsScreen,
-                        arguments: {'id': supplier.id},
-                      );*/
-                    },
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _infoRow(supplier.bannerImagePath!),
-                      ],
-                    ),
 
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Stack(
+                        clipBehavior: Clip.none, // Allows overflow for negative top
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.network(
+                              supplier.bannerImagePath!,
+                              width: double.infinity,
+                              height: 180,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+
+                          // Positioned icons cleanly *slightly above* image
+                          Positioned(
+                            top: -20,
+                            right: 10,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.black87,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 6),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit, color: Colors.white, size: 20),
+                                    onPressed: () => controller.editBanner(supplier,imageController,imageKey,scrollController),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete, color: Colors.redAccent, size: 20),
+                                    onPressed: () =>
+                                        _showDeleteConfirmation(context, supplier.id.toString()),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 30), // to give space for icons above
+                    ],
                   );
+
                 },
               );
             })
+
 
           ],
         ),
@@ -230,6 +252,32 @@ class bannerScreen extends StatelessWidget {
 
     );
   }
+
+  void _showDeleteConfirmation(BuildContext context, String id) {
+    final BannerScreenController controller = Get.put(BannerScreenController());
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Delete Banner"),
+        content: const Text("Are you sure you want to delete this banner?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              controller.deleteBanner(id);
+              Navigator.pop(context);
+            },
+            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showSourcePicker(BuildContext context) {
     final ImagePickerController imagePickerController = Get.put(ImagePickerController());
     showModalBottomSheet(

@@ -84,10 +84,11 @@ class APIService {
         },
         body: '', // Required empty body as per your API
       );
-
+      print('Url: ${url}');
       if (response.statusCode == 200) {
         final Map<String, dynamic> json = jsonDecode(response.body);
 
+        print('Response: ${json}');
         if (json['success'] == true && json['data'] is List) {
           final List<Map<String, dynamic>> result =
           List<Map<String, dynamic>>.from(json['data']);
@@ -313,7 +314,7 @@ class APIService {
   }
 
 
-  Future<ApiResponse?> addUpdateBanner(String bannerImagePath, String token,) async {
+  Future<ApiResponse?> addUpdateBanner(String id,String bannerImagePath, String token,) async {
     print('token: ${token}');
     try {
       final url = Uri.parse(
@@ -321,7 +322,7 @@ class APIService {
       print('Url: ${url}');
 
       final body = jsonEncode({
-        "id": 0,
+        "id": id,
         "bannerImagePath": bannerImagePath,
         "title": "Test  banner",
 
@@ -340,7 +341,7 @@ class APIService {
         print('Response: ${response.body}');
         print('Success flag: ${json['success']}');
         print('Data content: ${json['data']}');
-
+        print('Res: ${json}');
         if (json['success'] == true) {
           final data = json['data'];
           if (data is Map<String, dynamic>) {
@@ -433,6 +434,43 @@ class APIService {
           showSnackBar(json['message'] ?? 'Unexpected response');
           return null;
         }
+      }
+    } catch (e) {
+      log('Exception: $e');
+      showSnackBar('Something went wrong');
+      return null;
+    }
+  }
+
+
+  Future<String?> deleteBanner(String id, String token) async {
+    try {
+      final url = Uri.parse(
+          'https://association.ssspltd.com/api/Banner/DeleteBannerDetailsById?id=$id');
+      print('Url: $url');
+
+      final response = await http.post(
+        url,
+        headers: {
+          'Accept': '*/*',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: '', // empty body as expected
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> json = jsonDecode(response.body);
+        print('Response JSON: $json');
+        if (json['success'] == true) {
+          return json['message']; // This is your URL string
+        } else {
+          showSnackBar(json['message'] ?? 'Unexpected response');
+          return null;
+        }
+      } else {
+        showSnackBar('Error: ${response.statusCode} - ${response.reasonPhrase}');
+        return null;
       }
     } catch (e) {
       log('Exception: $e');

@@ -4,9 +4,11 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart' as box;
 import 'package:newapp/controllers/BannerScreenController.dart';
 
 import '../controllers/HomeController.dart';
@@ -40,7 +42,6 @@ class homeScreen extends StatelessWidget {
         : [
       {"icon": "assets/icons/honhar.png", "label": "Honhar khiladi"},
 
-
       {"icon": "assets/icons/accounts.png", "label": "Add Accounts"},
       {"icon": "assets/icons/bad.png", "label": "Dispute Details"},
       {"icon": "assets/icons/bad.png", "label": "Update Banners"},
@@ -56,7 +57,7 @@ class homeScreen extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pop(context);
+            SystemNavigator.pop();
           },
         ),
         title: Image.asset(
@@ -227,9 +228,16 @@ class homeScreen extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              controller.logOutParam();
-              Navigator.of(context).pop(); // close dialog
-            //  _logout(); // call your logout logic
+              final box = GetStorage();
+              String? accountType = box.read('accountType');
+
+              if (accountType=="Guest") {
+                box.erase();
+                Get.offNamed(RouteConstant.loginScreen);
+              }else{
+                controller.logOutParam();
+                Navigator.of(context).pop();
+              }
             },
             child: const Text('Logout'),
           ),

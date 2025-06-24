@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart' as http;
 import 'package:newapp/model/ApiResponse.dart';
 import 'package:newapp/model/BannerItem.dart';
 import 'package:newapp/network/api.dart';
@@ -11,7 +13,9 @@ import 'package:newapp/utils/utils.dart';
 
 class HomeController extends GetxController {
   var currentPage = 0.obs;
+
   var isDataLoading = false.obs;
+
   var bannerList = <BannerItem>[].obs;
   late final PageController pageController;
   Timer? _timer;
@@ -39,14 +43,13 @@ class HomeController extends GetxController {
 
       isDataLoading.value = false;
       if (mcqs != null && mcqs.isNotEmpty) {
-        bannerList.value = mcqs.map((e) => BannerItem.fromJson(e)).toList();
-
-        if (bannerList.isNotEmpty) {
-          startAutoSlide();
-        }
+        bannerList.value = mcqs
+            .map((e) => BannerItem.fromJson(e))
+            .take(5) // This limits the list to the first 5 items
+            .toList();
       } else {
-        bannerList.clear(); // optional: clear if no data
-        showSnackBar('No records found.');
+        bannerList.clear();
+        //showSnackBar('No records found.');
       }
     } catch (e) {
       isDataLoading.value = false;
@@ -94,6 +97,7 @@ class HomeController extends GetxController {
       showSnackBar('Failed to fetch data: $e');
     }
   }
+
 
 
   @override

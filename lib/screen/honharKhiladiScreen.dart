@@ -10,7 +10,9 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:newapp/customWidgets/customText.dart';
 import 'package:newapp/routes.dart';
+import 'package:newapp/utils/FullScreenImageView.dart';
 import 'package:newapp/utils/appcolors.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../controllers/HomeController.dart';
 import '../controllers/HonharKhiladiController.dart';
@@ -62,6 +64,7 @@ class honharKhiladiScreen extends StatelessWidget {
                               controller.searchController.clear(); //  clear the search field
                               controller.filterHonharList("");     // reset the filtered list
                               controller.getList(value);
+                              controller.downloadAccountDetailsReportPdf(value);
                             },
                             itemBuilder: (context) => const [
                               PopupMenuItem(value: "Customer", child: Text("Customer")),
@@ -94,12 +97,10 @@ class honharKhiladiScreen extends StatelessWidget {
                           ),*/
                         ],
                       )
-
-
                     ],
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 5),
                   Container(
                     height: 50,
                     margin: const EdgeInsets.all(10),
@@ -133,16 +134,46 @@ class honharKhiladiScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Left: Records found
+                      Obx(() => Text(
+                        "${controller.filteredList.length} Records Found",
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontSize: 12,
+                        ),
+                      )),
 
+                      // Right: Clickable image to open PDF
+                      GestureDetector(
+                        onTap: controller.downloadAndOpenPdf,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              'assets/icons/download_pdf.png',
+                              width: 25,
+                              height: 25,
+                              color: Colors.red,
+                            ),
+                            const SizedBox(width: 6), // spacing between icon and text
+                            const Text(
+                              "Download PDF",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.red,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
 
-                  const SizedBox(height: 6),
-        Obx(() => Text(
-          "${controller.filteredList.length} Records Found",
-          style: const TextStyle(
-            color: Colors.red,
-            fontSize: 12,
-          ),
-        )),
                 ],
               ),
             ),
@@ -164,7 +195,7 @@ class honharKhiladiScreen extends StatelessWidget {
                     final supplier = controller.filteredList[index];
                     return GestureDetector(
                       onTap: () {
-                        // Store user info if needed
+                        // 👉 Open details screen
                         GetStorage().write('id', supplier.id);
                         Get.toNamed(
                           RouteConstant.detailsScreen,
@@ -179,18 +210,47 @@ class honharKhiladiScreen extends StatelessWidget {
                         elevation: 3,
                         child: Padding(
                           padding: const EdgeInsets.all(12),
-                          child: Column(
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _infoRow('assets/icons/user.png', 'Name', supplier.name),
-                              _infoRow('assets/icons/mobile.png', 'Mobile', supplier.mobile),
-                              _infoRow('assets/icons/station.png', 'Station', supplier.station),
-                              _infoRow('assets/icons/home.png', 'Address', supplier.address),
+                              // 👤 Profile Image - open image full screen
+                              GestureDetector(
+                                onTap: () {
+                                  if (supplier.accountImagePath != null &&
+                                      supplier.accountImagePath!.isNotEmpty) {
+
+                                        Get.to(() => FullScreenImageView(assetPath: supplier.accountImagePath));
+                                  }
+                                },
+                                child: CircleAvatar(
+                                  radius: 28,
+                                  backgroundImage:
+                                  (supplier.accountImagePath != null && supplier.accountImagePath!.isNotEmpty)
+                                      ? NetworkImage(supplier.accountImagePath!)
+                                      : const AssetImage('assets/icons/user.png') as ImageProvider,
+                                  backgroundColor: Colors.grey[200],
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+
+                              // 📝 Info column
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _infoRow('assets/icons/user.png', 'Name', supplier.name),
+                                    _infoRow('assets/icons/mobile.png', 'Mobile', supplier.mobile),
+                                    _infoRow('assets/icons/station.png', 'Station', supplier.station),
+                                    _infoRow('assets/icons/home.png', 'Address', supplier.address),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),
                       ),
                     );
+                    ;
                   },
                 );
               }),
@@ -208,11 +268,16 @@ class honharKhiladiScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Image.asset(
-            assetPath,
-            width: 20,
-            height: 20,
-         /*   color: Colors.grey[700], // Optional: tint the image*/
+          GestureDetector(
+            onTap: () {
+              Get.to(() => FullScreenImageView(assetPath: assetPath));
+
+            },
+            child: Image.asset(
+              assetPath,
+              width: 20,
+              height: 20,
+            ),
           ),
           const SizedBox(width: 10),
           Text(
@@ -226,6 +291,9 @@ class honharKhiladiScreen extends StatelessWidget {
       ),
     );
   }
+
+
+
 
 }
 
