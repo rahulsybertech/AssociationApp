@@ -64,6 +64,49 @@ class detailsScreen extends StatelessWidget {
 
             ),
             SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16), // <-- margin left & right
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Left: Records found
+                  Obx(() => Text(
+                    "${controller.honharList.length} Records Found",
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontSize: 12,
+                    ),
+                  )),
+
+                  // Right: Download PDF
+                  GestureDetector(
+                    onTap: controller.downloadAndOpenPdf,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(
+                          'assets/icons/download_pdf.png',
+                          width: 25,
+                          height: 25,
+                          color: Colors.red,
+                        ),
+                        const SizedBox(width: 6),
+                        const Text(
+                          "Download PDF",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.red,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
             // 🔽 Supplier List
             Expanded(
               child: Obx(() {

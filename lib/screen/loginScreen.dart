@@ -109,7 +109,8 @@ class loginScreen extends StatelessWidget {
 void showOtpBottomSheet(BuildContext context, {
   required String mobileNumber,
   required String otp,
-}) {
+})
+{
   final TextEditingController otpController = TextEditingController();
   final Logincontroller controller = Get.put(Logincontroller());
   RxInt seconds = 60.obs;
@@ -199,6 +200,8 @@ void showOtpBottomSheet(BuildContext context, {
       ),
     ),
     isScrollControlled: true,
+    isDismissible: false,
+    enableDrag: false,
   );
 
 

@@ -5,13 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:newapp/controllers/HonharKhiladiController.dart';
 import 'package:newapp/utils/CrossPlatformImagePicker.dart';
 import 'package:newapp/utils/ImagePickerScreen.dart';
 import 'package:newapp/utils/utils.dart';
+import 'package:path_provider/path_provider.dart';
 
 class RegisterAccountController extends GetxController {
   var isDataLoading = false.obs;
   var selectedPartyType = 'Customer'.obs;
+  var accountType = 'Customer'.obs;
+
+  var id = '0'.obs;
 
   final firmNameController = TextEditingController();
   final ownerNameController = TextEditingController();
@@ -20,6 +25,7 @@ class RegisterAccountController extends GetxController {
   final categoryController = TextEditingController();
   final addressController = TextEditingController();
   final stationNameController = TextEditingController();
+  final ImagePickerController imageController = Get.put(ImagePickerController());
   RxString imagePath = ''.obs;
   var selectedCategory = ''.obs;
   var accountImage = Rx<File?>(null);
@@ -29,10 +35,50 @@ class RegisterAccountController extends GetxController {
   void setPartyType(String type) {
     selectedPartyType.value = type;
   }
+  @override
+  void onInit() {
+    super.onInit();
+
+
+    final args = Get.arguments;
+    if (args != null && args['supplier'] != null) {
+      final supplier = args['supplier'] as Honharlist;
+
+      id.value = supplier.id.toString();
+      accountType.value = supplier.accountType.toString();
+      selectedPartyType.value = supplier.accountType.toString();
+      firmNameController.text = supplier.name ?? '';
+      ownerNameController.text = supplier.ownerName ?? '';
+      mobileController.text = supplier.mobile ?? '';
+      addressController.text = supplier.address ?? '';
+      stationNameController.text = supplier.station ?? '';
+      gstController.text = supplier.gstNo ?? '';
+
+      if (supplier.accountImagePath?.isNotEmpty == true) {
+        loadImageFromUrl(supplier.accountImagePath!);
+      }
+    }
+  }
+  Future<void> loadImageFromUrl(String imageUrl) async {
+    try {
+      final response = await http.get(Uri.parse(imageUrl));
+      final bytes = response.bodyBytes;
+
+      // Save to temp file with a unique name (timestamp)
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/temp_image_${DateTime.now().millisecondsSinceEpoch}.jpg');
+      await file.writeAsBytes(bytes);
+
+      imageController.pickedImage.value = file; // ✅ triggers UI update
+    } catch (e) {
+      print("Image load error: $e");
+    }
+  }
+
 
 
   Future<bool> saveUpdateAccountDetails({
-    String? accountType,
+    String? accountType1,
     required String accountName,
     required String ownerName,
     required String mobileNo,
@@ -61,8 +107,8 @@ class RegisterAccountController extends GetxController {
     String? image = accountImagePath.isEmpty ? null : accountImagePath;
 
     final body = jsonEncode({
-      "id": 0,
-      "accountType": accountType,
+      "id": id.value,
+      "accountType": accountType.value,
       "accountCategory": accountCate,
       "accountName": accountName,
       "ownerName": ownerName,
@@ -77,6 +123,7 @@ class RegisterAccountController extends GetxController {
       "shopImagePath": image,
     });
 
+    print({body});
     try {
       final response = await http.post(url, headers: headers, body: body);
 
@@ -160,6 +207,9 @@ class RegisterAccountController extends GetxController {
         showSnackBar('Enter Name');
         return false;
       }
+      if (gst.isNotEmpty && gst.length != 15) {
+        showSnackBar('GST number must be exactly 15 characters');
+      }
 
   /*    if (gst.isEmpty) {
         showSnackBar('Enter GST number');
@@ -183,7 +233,7 @@ class RegisterAccountController extends GetxController {
 
     // All checks passed → save
     return await saveUpdateAccountDetails(
-      accountType: accountType,
+      accountType1: accountType,
       accountName: firmName,
       ownerName: ownerName,
       mobileNo: mobile,

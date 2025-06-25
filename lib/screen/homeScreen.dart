@@ -68,7 +68,12 @@ class homeScreen extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout, color: Colors.black),
+      icon: Image.asset(
+      'assets/icons/shutdown.png',
+        width: 30,
+        height: 30,
+
+      ),
             onPressed: () {
               _showLogoutDialog(context);
             },
@@ -85,7 +90,7 @@ class homeScreen extends StatelessWidget {
               children: [
                 Obx(() {
                   if (controller.bannerList.isEmpty) {
-                    return const Center(child: Text("No banners available"));
+                    return const Center(child: Text(""));
                   }
 
                   return SizedBox(

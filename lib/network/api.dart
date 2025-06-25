@@ -302,7 +302,7 @@ class APIService {
             print('Parsed Model: $model');
             return model;
           } else {
-            showSnackBar(json['message'] ?? 'Unexpected response');
+         //   showSnackBar(json['message'] ?? 'Unexpected response');
             return null;
           }
         }

@@ -197,9 +197,17 @@ class honharKhiladiScreen extends StatelessWidget {
                       onTap: () {
                         // 👉 Open details screen
                         GetStorage().write('id', supplier.id);
+                       /* Get.toNamed(
+                          RouteConstant.registerAccountScreen,
+                            arguments: {
+                              'supplier': supplier, // passing full object
+                            },
+                        );*/
                         Get.toNamed(
                           RouteConstant.detailsScreen,
-                          arguments: {'id': supplier.id},
+                          arguments: {
+                            'supplier': supplier, // passing full object
+                          },
                         );
                       },
                       child: Card(
@@ -240,6 +248,7 @@ class honharKhiladiScreen extends StatelessWidget {
                                   children: [
                                     _infoRow('assets/icons/user.png', 'Name', supplier.name),
                                     _infoRow('assets/icons/mobile.png', 'Mobile', supplier.mobile),
+                                    _infoRow('assets/icons/gst.png', 'GST', supplier.gstNo),
                                     _infoRow('assets/icons/station.png', 'Station', supplier.station),
                                     _infoRow('assets/icons/home.png', 'Address', supplier.address),
                                   ],

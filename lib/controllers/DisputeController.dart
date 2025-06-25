@@ -11,6 +11,7 @@ import 'package:newapp/utils/utils.dart';
 
 class DisputeController extends GetxController {
   var selectedCustomer = ''.obs;
+  final isSettledAmtEditable = true.obs;
   var selectedSupplier = ''.obs;
   var disputedAmount = ''.obs;
   var settledAmount = ''.obs;
@@ -162,11 +163,11 @@ class DisputeController extends GetxController {
       } else {
         disputeAmt.value = "";
         settelledAmt.value = "";
-        showSnackBar('No records found.');
+     //   showSnackBar('No records found.');
       }
     } catch (e) {
       isDataLoading.value = false;
-      showSnackBar('Failed to fetch data: $e');
+    //  showSnackBar('Failed to fetch data: $e');
     }
   }
 

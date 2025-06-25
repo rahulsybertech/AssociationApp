@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
@@ -63,9 +64,12 @@ class RegisterAccountScreen extends StatelessWidget {
                       Radio<String>(
                         value: type,
                         groupValue: controller.selectedPartyType.value,
+
                         activeColor: Colors.red,
                         onChanged: (val) {
                           controller.selectedPartyType.value = val!;
+                          controller.accountType.value = val;
+
                           controller.clearFormFields();
                           imageController.pickedImage.value = null;
                           accountType = val;
@@ -105,6 +109,7 @@ class RegisterAccountScreen extends StatelessWidget {
                     _buildTextField("Owner Name", controller.ownerNameController),
                     _buildTextField("Mobile Number", controller.mobileController, keyboardType: TextInputType.phone,),
                     _buildTextField("Address", controller.addressController),
+                    _buildTextField("Station Name", controller.stationNameController),
                /*     _buildTextField("Station Name", controller.stationNameController),
                     _buildTextField("User Category", controller.categoryController),*/
           /*          DropdownButton<String>(
@@ -121,12 +126,11 @@ class RegisterAccountScreen extends StatelessWidget {
                       },
                     ),*/
 
-                    if (type == 'Customer') ...[
+                    if (type == 'Customer'||type == 'Supplier') ...[
                       _buildTextField("GST No.", controller.gstController),
 
                     ],
                     if (type == 'Other') ...[
-                      _buildTextField("Station Name", controller.stationNameController),
                       Obx(() => DropdownButtonFormField<String>(
                         value: controller.selectedCategory.value.isEmpty
                             ? null
@@ -299,7 +303,7 @@ class RegisterAccountScreen extends StatelessWidget {
                               ? null // Disable button when loading
                               : () async {
                             controller.isDataLoading.value = true;
-                            final File? imageFile = imageController.shopImage.value;
+                            final File? imageFile = imageController.pickedImage.value;
 
                             final String? base64Image = imageFile != null
                                 ? base64Encode(imageFile.readAsBytesSync())
@@ -368,22 +372,35 @@ class RegisterAccountScreen extends StatelessWidget {
   }
 
 
-  Widget _buildTextField(String label, TextEditingController controller,
-      {TextInputType keyboardType = TextInputType.text}) {
+
+  Widget _buildTextField(
+      String label,
+      TextEditingController controller, {
+        TextInputType keyboardType = TextInputType.text,
+      }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 7),
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,
+        maxLength: label == "Mobile Number" ? 10 : (label == "GST No." ? 15 : null),
+        inputFormatters: label == "Mobile Number" || label == "GST No."
+            ? [FilteringTextInputFormatter.digitsOnly]
+            : [],
         decoration: InputDecoration(
           labelText: label,
+          counterText: "", // hide character counter
           filled: true,
           fillColor: Colors.grey[100],
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
         ),
       ),
     );
   }
+
 
 
 

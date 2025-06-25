@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:newapp/controllers/DisputeController.dart';
@@ -37,54 +38,61 @@ class DisputeDetailsScreen extends StatelessWidget {
           child: Column(
             children: [
               // Customer Dropdown
-              Obx(() => DropdownButtonFormField<CustomerList>(
-                value: controller.selectedCustomerlist.value,
-                items: controller.customerList
-                    .map(
-                      (customer) => DropdownMenuItem<CustomerList>(
-                    value: customer,
-                    child: Text('${customer.accountName}'),
-                  ),
-                )
-                    .toList(),
+              Obx(() => DropdownSearch<CustomerList>(
+                selectedItem: controller.selectedCustomerlist.value,
+                items: controller.customerList,
+                itemAsString: (customer) => customer.accountName ?? "",
                 onChanged: (val) {
-                  controller.customerId.value = val!.id.toString(); // ✅ Correct
-                  controller.selectedCustomer.value = val! as String;
-
+                  if (val != null) {
+                    controller.customerId.value = val.id.toString();
+                    controller.selectedCustomerlist.value = val;
+                  }
                 },
-                decoration: InputDecoration(
-                  labelText: 'Select Customer',
-                  border: OutlineInputBorder(),
+                dropdownDecoratorProps: DropDownDecoratorProps(
+                  dropdownSearchDecoration: InputDecoration(
+                    labelText: 'Select Customer',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-                validator: (val) =>
-                val == null ? 'Select a customer' : null,
-              )),
+                validator: (val) => val == null ? 'Select a customer' : null,
+                popupProps: PopupProps.menu(
+                  showSearchBox: true,
+                  searchFieldProps: TextFieldProps(
+                    decoration: InputDecoration(hintText: "Search Customer"),
+                  ),
+                ),
+              ))
+              ,
 
               const SizedBox(height: 12),
 
               // Supplier Dropdown
-              Obx(() => DropdownButtonFormField<CustomerList>(
-                value: controller.selectedSuplierlist.value,
-                items: controller.supplierList
-                    .map(
-                      (customer) => DropdownMenuItem<CustomerList>(
-                    value: customer,
-                    child: Text('${customer.accountName}'),
-                  ),
-                )
-                    .toList(),
+              Obx(() => DropdownSearch<CustomerList>(
+                selectedItem: controller.selectedSuplierlist.value,
+                items: controller.supplierList,
+                itemAsString: (supplier) => supplier.accountName ?? "",
                 onChanged: (val) {
-                  controller.supplierId.value = val!.id.toString();
-             //     controller.selectedCustomer.value = val as String;
-                 controller. getDisputeDetails();
+                  if (val != null) {
+                    controller.supplierId.value = val.id.toString();
+                    controller.selectedSuplierlist.value = val;
+                    controller.getDisputeDetails();
+                  }
                 },
-                decoration: InputDecoration(
-                  labelText: 'Select Supplier',
-                  border: OutlineInputBorder(),
+                dropdownDecoratorProps: DropDownDecoratorProps(
+                  dropdownSearchDecoration: InputDecoration(
+                    labelText: 'Select Supplier',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-                validator: (val) =>
-                val == null ? 'Select a Supplier' : null,
+                validator: (val) => val == null ? 'Select a supplier' : null,
+                popupProps: PopupProps.menu(
+                  showSearchBox: true,
+                  searchFieldProps: TextFieldProps(
+                    decoration: InputDecoration(hintText: "Search Supplier"),
+                  ),
+                ),
               )),
+
               const SizedBox(height: 12),
 
               // Disputed Amount
@@ -105,15 +113,46 @@ class DisputeDetailsScreen extends StatelessWidget {
               // Settled Amount
               Obx(() => TextFormField(
                 decoration: const InputDecoration(
-                  labelText: 'Settelled Amt.',
+                  labelText: 'Settled Amt.',
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
                 controller: TextEditingController(text: controller.settelledAmt.value)
                   ..selection = TextSelection.collapsed(offset: controller.settelledAmt.value.length),
                 onChanged: (val) {
-                  controller.settelledAmt.value = val; // allow empty string
-                },
+                  final dispute = double.tryParse(controller.disputeAmt.value) ?? 0;
+                  final settled = double.tryParse(val) ?? 0;
+
+                  if (settled > dispute) {
+                    // Show error message
+                    Get.snackbar(
+                      'Invalid Amount',
+                      'Settled amount cannot be greater than disputed amount.',
+                      backgroundColor: Colors.redAccent,
+                      colorText: Colors.white,
+                    );
+
+                    // Remove the last digit that was just typed
+                    if (val.length > 1) {
+                      if (settled < dispute){
+                        final correctedVal = val.substring(0, val.length - 1);
+                        controller.settelledAmt.value = correctedVal;
+                      }else{
+                    /*    final correctedVal = val.substring(0, val.length - 1);
+                        controller.settelledAmt.value = correctedVal;*/
+                        controller.settelledAmt.value = "";
+
+                      }
+
+                    } else {
+                      controller.settelledAmt.value = "";
+                    }
+                  } else {
+                    controller.settelledAmt.value = val;
+                  }
+                }
+
+                ,
               )),
               const SizedBox(height: 12),
 

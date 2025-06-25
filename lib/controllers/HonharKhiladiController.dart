@@ -208,16 +208,22 @@ class Honharkhiladicontroller extends GetxController {
 
 class Honharlist {
   final String name;
+  final String accountType;
+  final String ownerName;
   final int id;
   final String mobile;
+  final String gstNo;
   final String station;
   final String address;
   final String accountImagePath;
 
   Honharlist({
     required this.name,
+    required this.accountType,
+    required this.ownerName,
     required this.id,
     required this.mobile,
+    required this.gstNo,
     required this.station,
     required this.address,
     required this.accountImagePath,
@@ -226,8 +232,11 @@ class Honharlist {
   factory Honharlist.fromJson(Map<String, dynamic> json) {
     return Honharlist(
       name: json['accountName'] ?? '',
+      accountType: json['accountType'] ?? '',
+      ownerName: json['ownerName'] ?? '',
       id: json['id'] ?? '',
       mobile: json['mobileNo'] ?? '',
+      gstNo: json['gstNo'] ?? '',
       station: json['station'] ?? '',
       address: json['address'] ?? '',
       accountImagePath: json['accountImagePath'] ?? '',
