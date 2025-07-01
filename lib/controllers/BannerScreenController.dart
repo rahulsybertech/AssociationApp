@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:newapp/controllers/HomeController.dart';
 import 'package:newapp/model/ApiResponse.dart';
 import 'package:newapp/model/BannerItem.dart';
 import 'package:newapp/network/api.dart';
@@ -24,6 +25,7 @@ class BannerScreenController extends GetxController {
   var accountImage = Rx<File?>(null);
   var shopImage = Rx<File?>(null);
   var bannerList = <BannerItem>[].obs;
+  final HomeController controller = Get.put(HomeController());
 
   @override
   void onInit() {
@@ -49,7 +51,7 @@ class BannerScreenController extends GetxController {
       getBannerList();
       isUploading.value = false;
       if (model != null) {
-
+        controller.getBannerList();
         showSnackBar(model.message);
 
       } else {
@@ -101,6 +103,8 @@ class BannerScreenController extends GetxController {
 
       if (result != null && result.isNotEmpty) {
         showSnackBar('Banner deleted successfully.');
+
+        controller.bannerList();
 
         // Optionally, refresh list
         await getBannerList();

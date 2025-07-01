@@ -178,6 +178,51 @@ class detailsController extends GetxController {
     }
   }
 
+  Future downloadAccountDetailsReportXml(String accountType) async {
+    isDataLoading.value = true;
+    final box = GetStorage();
+    String? token = box.read('token');
+    String? id = box.read('id')?.toString();
+    try {
+      final url = Uri.parse(
+        'https://association.ssspltd.com/api/Account/DownloadAccountDetailsPdfByAccountId?accountId=$id&accountType=$accountType',
+      );
+      print("Url"+url.toString());
+      final response = await http.post(
+        url,
+        headers: {
+          'Accept': '*/*',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: '',
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print("Body"+data.toString());
+        // Check the "success" field in the response JSON
+        if (data['success'] == true && data['data'] != null) {
+          var url=data['data'].toString();
+          pdtUrl.value=url.toString();
+          // GetStorage().write('user_name', name);
+
+        } else {
+          // Handle error scenario from the API response
+          final errorMessage = data['message'] ?? 'Login failed';
+          showSnackBar(errorMessage);
+        }
+      } else {
+        // Non-200 HTTP status
+        showSnackBar('Login failed with status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      showSnackBar('Login Error: $e');
+    } finally {
+      isDataLoading.value = false;
+    }
+  }
+
 
 
 

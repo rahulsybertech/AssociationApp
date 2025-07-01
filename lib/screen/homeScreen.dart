@@ -38,13 +38,15 @@ class homeScreen extends StatelessWidget {
       {"icon": "assets/icons/accounts.png", "label": "Add Accounts"},
       {"icon": "assets/icons/bad.png", "label": "Dispute Details"},
       {"icon": "assets/icons/bad.png", "label": "Update Banners"},
+      {"icon": "assets/icons/accounts.png", "label": "Update Accounts"},
     ]
         : [
       {"icon": "assets/icons/honhar.png", "label": "Honhar khiladi"},
 
-      {"icon": "assets/icons/accounts.png", "label": "Add Accounts"},
+ /*     {"icon": "assets/icons/accounts.png", "label": "Add Accounts"},
       {"icon": "assets/icons/bad.png", "label": "Dispute Details"},
       {"icon": "assets/icons/bad.png", "label": "Update Banners"},
+      {"icon": "assets/icons/accounts.png", "label": "All Accounts"},*/
     ];
 
     final size = MediaQuery.of(context).size;
@@ -75,7 +77,15 @@ class homeScreen extends StatelessWidget {
 
       ),
             onPressed: () {
-              _showLogoutDialog(context);
+              final box = GetStorage();
+              String? accountType = box.read('accountType');
+              if (accountType=="Guest") {
+                box.erase();
+                Get.offNamed(RouteConstant.loginScreen);
+              }else{
+                _showLogoutDialog(context);
+              }
+
             },
           ),
         ],
@@ -163,8 +173,18 @@ class homeScreen extends StatelessWidget {
                   return GestureDetector(
                     onTap: () {
                       switch (label) {
+                        case 'Update Banners':
+                          Get.toNamed(RouteConstant.bannerScreen);
+                          break;
+                        case 'Update Accounts':
+                          Get.toNamed(RouteConstant.honharScreen, arguments: {
+                            'screen': 'All Accounts',
+                          });
+                          break;
                         case 'Honhar khiladi':
-                          Get.toNamed(RouteConstant.honharScreen);
+                          Get.toNamed(RouteConstant.honharScreen, arguments: {
+                            'screen': 'Honhar',
+                          });
                           break;
                         case 'Add Accounts':
                           Get.toNamed(RouteConstant.registerAccountScreen);
@@ -172,9 +192,7 @@ class homeScreen extends StatelessWidget {
                         case 'Dispute Details':
                           Get.toNamed(RouteConstant.disputeDetailsScreen);
                           break;
-                          case 'Update Banners':
-                          Get.toNamed(RouteConstant.bannerScreen);
-                          break;
+
                       // Add more cases as needed
                         default:
                           Get.snackbar('Error', 'No screen defined for "$label"');
@@ -235,7 +253,6 @@ class homeScreen extends StatelessWidget {
             onPressed: () {
               final box = GetStorage();
               String? accountType = box.read('accountType');
-
               if (accountType=="Guest") {
                 box.erase();
                 Get.offNamed(RouteConstant.loginScreen);

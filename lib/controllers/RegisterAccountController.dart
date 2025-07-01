@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:newapp/controllers/HonharKhiladiController.dart';
+import 'package:newapp/screen/honharKhiladiScreen.dart';
 import 'package:newapp/utils/CrossPlatformImagePicker.dart';
 import 'package:newapp/utils/ImagePickerScreen.dart';
 import 'package:newapp/utils/utils.dart';
@@ -14,6 +15,7 @@ import 'package:path_provider/path_provider.dart';
 class RegisterAccountController extends GetxController {
   var isDataLoading = false.obs;
   var selectedPartyType = 'Customer'.obs;
+  bool get isEditing => id.value != "0";
   var accountType = 'Customer'.obs;
 
   var id = '0'.obs;
@@ -53,6 +55,7 @@ class RegisterAccountController extends GetxController {
       addressController.text = supplier.address ?? '';
       stationNameController.text = supplier.station ?? '';
       gstController.text = supplier.gstNo ?? '';
+      selectedCategory.value=supplier.accountCategory;
 
       if (supplier.accountImagePath?.isNotEmpty == true) {
         loadImageFromUrl(supplier.accountImagePath!);
@@ -106,10 +109,9 @@ class RegisterAccountController extends GetxController {
     };
     String? image = accountImagePath.isEmpty ? null : accountImagePath;
 
-    final body = jsonEncode({
+    final Map<String, dynamic> bodyMap = {
       "id": id.value,
       "accountType": accountType.value,
-      "accountCategory": accountCate,
       "accountName": accountName,
       "ownerName": ownerName,
       "mobileNo": mobileNo,
@@ -118,10 +120,18 @@ class RegisterAccountController extends GetxController {
       "stateName": stateName,
       "gstNo": gstNo,
       "deviceID": deviceID,
-
       "accountImagePath": image,
       "shopImagePath": image,
-    });
+    };
+
+// Conditionally add accountCategory
+    if (accountCate == 'other') {
+      bodyMap["accountCategory"] = selectedCategory.value;
+    } else {
+      bodyMap["accountCategory"] = accountCate;
+    }
+
+    final body = jsonEncode(bodyMap);
 
     print({body});
     try {
@@ -133,6 +143,11 @@ class RegisterAccountController extends GetxController {
         if (data['success'] == true) {
           clearFormFields();
           Get.back();
+          final Honharkhiladicontroller controller = Get.put(Honharkhiladicontroller());
+       //   await Get.to(() => honharKhiladiScreen());
+
+          // onResume-like behavior
+          controller.getList(accountType.value);
           showSnackBar("Record Save Successfully!!.");
           return true;
         } else {
@@ -209,6 +224,7 @@ class RegisterAccountController extends GetxController {
       }
       if (gst.isNotEmpty && gst.length != 15) {
         showSnackBar('GST number must be exactly 15 characters');
+        return false;
       }
 
   /*    if (gst.isEmpty) {

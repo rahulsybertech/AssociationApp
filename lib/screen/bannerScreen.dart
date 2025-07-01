@@ -64,7 +64,7 @@ class bannerScreen extends StatelessWidget {
                 children: [
 
                /*   if (controller.bannerList.length<5)*/
-                  GestureDetector(
+                 /* GestureDetector(
                     onTap: () => _showSourcePicker(context),
                     child: Expanded(
                       child:
@@ -117,8 +117,8 @@ class bannerScreen extends StatelessWidget {
                       })
 
                     ),
-                  ),
-/*
+                  ),*/
+
                   SizedBox(
                     width: double.infinity,
                     child: GestureDetector(
@@ -126,57 +126,59 @@ class bannerScreen extends StatelessWidget {
                       child: Obx(() {
                         final pickedFile = imageController.pickedImage.value;
 
-                        return Container(
-                          key: imageKey,
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade400),
-                            borderRadius: BorderRadius.circular(8),
+                        return Center( // 👈 Center the entire container
+                          child: Container(
+                            key: imageKey,
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade400),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: pickedFile != null
+                                ? Stack(
+                              alignment: Alignment.topRight,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.file(
+                                    pickedFile,
+                                    width: 120,
+                                    height: 120,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    imageController.pickedImage.value = null;
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black26,
+                                          blurRadius: 4,
+                                          offset: Offset(2, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: const Icon(
+                                      Icons.close,
+                                      color: Colors.red,
+                                      size: 25,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                                : const Icon(Icons.upload_file, color: Colors.red, size: 40),
                           ),
-                          child: pickedFile != null
-                              ? Stack(
-                            alignment: Alignment.topRight,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Image.file(
-                                  pickedFile,
-                                  width: 120,
-                                  height: 120,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  imageController.pickedImage.value = null;
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(2),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black26,
-                                        blurRadius: 4,
-                                        offset: Offset(2, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: const Icon(
-                                    Icons.close,
-                                    color: Colors.red,
-                                    size: 25,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                              : const Icon(Icons.upload_file, color: Colors.red, size: 40),
                         );
                       }),
                     ),
-                  ),*/
+                  ),
 
 
 
@@ -313,6 +315,7 @@ class bannerScreen extends StatelessWidget {
 
     );
   }
+
 
   void _showDeleteConfirmation(BuildContext context, String id) {
     final BannerScreenController controller = Get.put(BannerScreenController());

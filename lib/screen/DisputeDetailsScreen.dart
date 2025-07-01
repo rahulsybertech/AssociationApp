@@ -1,11 +1,16 @@
+import 'dart:convert';
 import 'dart:ffi';
+import 'dart:io';
 
+import 'package:dotted_border/dotted_border.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:newapp/controllers/DisputeController.dart';
 import 'package:newapp/customWidgets/customLoader.dart';
 import 'package:newapp/customWidgets/customText.dart';
+import 'package:newapp/utils/CrossPlatformImagePicker.dart';
 
 
 class DisputeDetailsScreen extends StatelessWidget {
@@ -15,6 +20,7 @@ class DisputeDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final DisputeController controller = Get.put(DisputeController());
+    final ImagePickerController imageController = Get.put(ImagePickerController());
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dispute Details'),
@@ -96,103 +102,160 @@ class DisputeDetailsScreen extends StatelessWidget {
               const SizedBox(height: 12),
 
               // Disputed Amount
-              Obx(() => TextFormField(
+              TextFormField(
+                controller: controller.disputeAmtController,
                 decoration: const InputDecoration(
                   labelText: 'Disputed Amt.',
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
-                controller: TextEditingController(text: controller.disputeAmt.value)
-                  ..selection = TextSelection.collapsed(offset: controller.disputeAmt.value.length),
-                onChanged: (val) {
-                  controller.disputeAmt.value = val; // allow empty string
-                },
-              )),
+              ),
 
               const SizedBox(height: 12),
-              // Settled Amount
-              Obx(() => TextFormField(
+
+              TextFormField(
+                controller: controller.settelledAmtController,
                 decoration: const InputDecoration(
                   labelText: 'Settled Amt.',
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
-                controller: TextEditingController(text: controller.settelledAmt.value)
-                  ..selection = TextSelection.collapsed(offset: controller.settelledAmt.value.length),
                 onChanged: (val) {
                   final dispute = double.tryParse(controller.disputeAmt.value) ?? 0;
                   final settled = double.tryParse(val) ?? 0;
 
+                  controller.settelledAmt.value = val;
+
                   if (settled > dispute) {
-                    // Show error message
-                    Get.snackbar(
-                      'Invalid Amount',
-                      'Settled amount cannot be greater than disputed amount.',
-                      backgroundColor: Colors.redAccent,
-                      colorText: Colors.white,
-                    );
-
-                    // Remove the last digit that was just typed
-                    if (val.length > 1) {
-                      if (settled < dispute){
-                        final correctedVal = val.substring(0, val.length - 1);
-                        controller.settelledAmt.value = correctedVal;
-                      }else{
-                    /*    final correctedVal = val.substring(0, val.length - 1);
-                        controller.settelledAmt.value = correctedVal;*/
-                        controller.settelledAmt.value = "";
-
-                      }
-
-                    } else {
-                      controller.settelledAmt.value = "";
-                    }
+                    controller.isSettledAmtInvalid.value = true;
                   } else {
-                    controller.settelledAmt.value = val;
+                    controller.isSettledAmtInvalid.value = false;
                   }
-                }
+                },
+              ),
 
-                ,
-              )),
+              // ❗ Error message
+              Obx(() => controller.isSettledAmtInvalid.value
+                  ? const Padding(
+                padding: EdgeInsets.only(top: 4, left: 8),
+                child: Text(
+                  'Settled amount cannot be greater than disputed amount.',
+                  style: TextStyle(color: Colors.red, fontSize: 12),
+                ),
+              )
+                  : const SizedBox()),
+
               const SizedBox(height: 12),
 
               // Upload File
               Obx(() => GestureDetector(
-                onTap: controller.uploadDocument,
-                child: DottedBorderBox(
-                  child: Column(
-                    children: [
-                      const Text('5.0 MB maximum file size'),
-                      const SizedBox(height: 8),
-                      const Icon(Icons.upload_file, size: 30),
-                      Text(
-                        controller.selectedFileName.isEmpty
-                            ? 'Upload Document'
-                            : controller.selectedFileName.value,
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ],
+                onTap: () {
+                  _showSourcePicker(context); // Open camera/gallery picker
+                },
+                child: DottedBorder(
+                  color: Colors.red,
+                  dashPattern: [6, 4],
+                  borderType: BorderType.RRect,
+                  radius: const Radius.circular(12),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Picked image or icon
+                        imageController.pickedImage.value != null
+                            ? Stack(
+                          alignment: Alignment.topRight,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.file(
+                                imageController.pickedImage.value!,
+                                width: 120,
+                                height: 120,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                imageController.pickedImage.value = null;
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black26,
+                                      blurRadius: 4,
+                                      offset: Offset(2, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(Icons.close, color: Colors.red, size: 25),
+                              ),
+                            ),
+                          ],
+                        )
+                            : const Icon(Icons.upload_file, size: 40, color: Colors.red),
+
+                        const SizedBox(height: 10),
+
+                        // Info text
+                        const Text('5.0 MB maximum file size', style: TextStyle(fontSize: 12, color: Colors.grey)),
+
+                        const SizedBox(height: 6),
+
+                        Text(
+                          imageController.pickedImage.value != null
+                              ? 'Image Selected'
+                              : 'Upload Document',
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               )),
+
               const SizedBox(height: 24),
 
               // Save Button
               Obx(() => ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
-                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
-                onPressed: controller.saveDispute,
-                child: controller.isSaveLoading.value
-                    ? const Loader(color: Colors.white)
-                    : const CustomText(
-                  text: 'SAVE',
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  textColor: Colors.white,
-                ),
+                onPressed: controller.isDataLoading.value
+                    ? null // Disable while loading
+                    : () async {
+                  controller.isDataLoading.value = true;
+
+                  final File? imageFile = imageController.pickedImage.value;
+                  final String? base64Image = imageFile != null
+                      ? base64Encode(imageFile.readAsBytesSync())
+                      : null;
+
+                  controller.isDataLoading.value = false;
+                  controller.selectedFileName.value = base64Image!;
+                    controller.saveDispute(); // ⬅️ Call your save method
+
+                },
+                child: controller.isDataLoading.value
+                    ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
+                    : const Text("SAVE", style: TextStyle(color: Colors.white)),
               ))
+
 
             ],
 
@@ -201,6 +264,35 @@ class DisputeDetailsScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showSourcePicker(BuildContext context) {
+  final ImagePickerController imagePickerController = Get.put(ImagePickerController());
+  showModalBottomSheet(
+    context: context,
+    builder: (_) => SafeArea(
+      child: Wrap(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.camera_alt),
+            title: const Text("Take a Photo"),
+            onTap: () {
+              Navigator.pop(context);
+              imagePickerController.pickImage(ImageSource.camera);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.photo_library),
+            title: const Text("Choose from Gallery"),
+            onTap: () {
+              Navigator.pop(context);
+              imagePickerController.pickImage(ImageSource.gallery);
+            },
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
 // Custom dotted box

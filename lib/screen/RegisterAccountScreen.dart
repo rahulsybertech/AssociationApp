@@ -7,7 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:newapp/controllers/HonharKhiladiController.dart';
 import 'package:newapp/controllers/RegisterAccountController.dart';
+import 'package:newapp/screen/honharKhiladiScreen.dart';
 import 'package:newapp/utils/CrossPlatformImagePicker.dart';
 import 'package:newapp/utils/ImagePickerScreen.dart';
 
@@ -64,12 +66,12 @@ class RegisterAccountScreen extends StatelessWidget {
                       Radio<String>(
                         value: type,
                         groupValue: controller.selectedPartyType.value,
-
                         activeColor: Colors.red,
-                        onChanged: (val) {
+                        onChanged: controller.isEditing
+                            ? null
+                            : (val) {
                           controller.selectedPartyType.value = val!;
                           controller.accountType.value = val;
-
                           controller.clearFormFields();
                           imageController.pickedImage.value = null;
                           accountType = val;
@@ -79,7 +81,9 @@ class RegisterAccountScreen extends StatelessWidget {
                         type,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: controller.selectedPartyType.value == type ? Colors.red : Colors.black,
+                          color: controller.selectedPartyType.value == type
+                              ? Colors.red
+                              : Colors.black,
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -88,7 +92,8 @@ class RegisterAccountScreen extends StatelessWidget {
                 }).toList(),
               )),
 
-             /* const SizedBox(height: 20),*/
+
+              /* const SizedBox(height: 20),*/
 
               // Conditionally render fields based on party type
               Obx(() {
@@ -373,36 +378,80 @@ class RegisterAccountScreen extends StatelessWidget {
 
 
 
+
+
   Widget _buildTextField(
       String label,
       TextEditingController controller, {
         TextInputType keyboardType = TextInputType.text,
-      }) {
+      })
+  {
+    List<TextInputFormatter>? inputFormatters;
+    int? maxLength;
+
+    if (label == "Mobile Number") {
+      inputFormatters = [FilteringTextInputFormatter.digitsOnly];
+      maxLength = 10;
+      keyboardType = TextInputType.phone;
+    } else if (label == "GST No.") {
+      // Allow uppercase letters and digits only
+      inputFormatters = [
+        FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]')),
+        UpperCaseTextFormatter(), // optional: force uppercase input
+      ];
+      keyboardType = TextInputType.text;
+      maxLength = 15;
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 7),
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,
-        maxLength: label == "Mobile Number" ? 10 : (label == "GST No." ? 15 : null),
-        inputFormatters: label == "Mobile Number" || label == "GST No."
-            ? [FilteringTextInputFormatter.digitsOnly]
-            : [],
+        maxLength: maxLength,
+        inputFormatters: inputFormatters,
         decoration: InputDecoration(
           labelText: label,
           counterText: "", // hide character counter
           filled: true,
-          fillColor: Colors.grey[100],
+          fillColor: Colors.white,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
+            borderSide: BorderSide(color: Colors.grey.shade300), // fallback
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: Colors.grey), // darker on focus
           ),
         ),
       ),
     );
+
+  }
+
+
+  void goToDetailsScreen() async {
+    final Honharkhiladicontroller controller = Get.put(Honharkhiladicontroller());
+    await Get.to(() => honharKhiladiScreen());
+
+    // onResume-like behavior
+    controller.getList("Customer"); // your API call
   }
 
 
 
+}
 
-
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
+    return newValue.copyWith(text: newValue.text.toUpperCase());
+  }
 }

@@ -70,11 +70,18 @@ class APIService {
   }
 
 
-  Future<List<Map<String, dynamic>>?> honharKhiladiList(String accountType, String token) async {
+  Future<List<Map<String, dynamic>>?> honharKhiladiList(String screen,String accountType, String token) async {
     try {
-      final url = Uri.parse(
-          'https://association.ssspltd.com/api/Account/GetAccountDetailsList?accountType=$accountType');
 
+      final Uri url;
+
+      if (screen == 'Honhar') {
+        url = Uri.parse(
+            'https://association.ssspltd.com/api/Account/GetAccountDetailsList?accountType=$accountType');
+      } else {
+        url = Uri.parse(
+            'https://association.ssspltd.com/api/Account/GetAccountDetailsList');
+      }
       final response = await http.post(
         url,
         headers: {

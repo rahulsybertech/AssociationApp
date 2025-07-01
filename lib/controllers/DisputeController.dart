@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:get/get.dart';
 import 'package:file_selector/file_selector.dart';
@@ -7,12 +8,18 @@ import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:newapp/model/DisputeDetailsModel.dart';
 import 'package:newapp/network/api.dart';
+import 'package:newapp/utils/CrossPlatformImagePicker.dart';
 import 'package:newapp/utils/utils.dart';
+import 'package:path_provider/path_provider.dart';
 
 class DisputeController extends GetxController {
   var selectedCustomer = ''.obs;
   final isSettledAmtEditable = true.obs;
+  final disputeAmtController = TextEditingController();
+  final settelledAmtController = TextEditingController();
+  final ImagePickerController imageController = Get.put(ImagePickerController());
   var selectedSupplier = ''.obs;
+  var base64Path = ''.obs;
   var disputedAmount = ''.obs;
   var settledAmount = ''.obs;
   var customerId = ''.obs;
@@ -34,6 +41,31 @@ class DisputeController extends GetxController {
   void onInit() {
     super.onInit();
     _fetchBothLists();
+    // 1. Listen to field changes and update .value
+    disputeAmtController.addListener(() {
+      disputeAmt.value = disputeAmtController.text;
+    });
+
+    settelledAmtController.addListener(() {
+      settelledAmt.value = settelledAmtController.text;
+    });
+
+    // 2. Listen to .value changes and update controller (one-time sync)
+    ever(disputeAmt, (val) {
+      if (disputeAmtController.text != val) {
+        disputeAmtController.text = val;
+        disputeAmtController.selection =
+            TextSelection.collapsed(offset: val.length);
+      }
+    });
+
+    ever(settelledAmt, (val) {
+      if (settelledAmtController.text != val) {
+        settelledAmtController.text = val;
+        settelledAmtController.selection =
+            TextSelection.collapsed(offset: val.length);
+      }
+    });
   }
 
 
@@ -57,14 +89,14 @@ class DisputeController extends GetxController {
 //    String? image = selectedFileName.isEmpty ? null : selectedFileName;
     {
   }
-
     final body = jsonEncode({
       "id": recordId.value.isEmpty ? 0 : recordId.value,
       "customerId": customerId.value,
       "supplierId": supplierId.value,
       "disputeAmt": disputeAmt.value,
-      "settelledAmt":settelledAmt .value,
       "disputeImagePath": selectedFileName.value,
+      "settelledAmt": settelledAmt.value
+
     });
     print("Body"+body.toString());
     try {
@@ -142,6 +174,7 @@ class DisputeController extends GetxController {
   final disputeAmt = ''.obs;
   var settelledAmt = ''.obs;
   var recordId = ''.obs;
+  var isSettledAmtInvalid = false.obs;
 
   Future<void> getDisputeDetails() async {
     isDataLoading.value = true;
@@ -160,6 +193,9 @@ class DisputeController extends GetxController {
         disputeAmt.value = model.disputeAmt;
         settelledAmt.value = model.settelledAmt;
         recordId.value = model.id.toString();
+        if (model.disputeImagePath.isNotEmpty) {
+          loadImageFromUrl(model.disputeImagePath);
+        }
       } else {
         disputeAmt.value = "";
         settelledAmt.value = "";
@@ -168,6 +204,21 @@ class DisputeController extends GetxController {
     } catch (e) {
       isDataLoading.value = false;
     //  showSnackBar('Failed to fetch data: $e');
+    }
+  }
+  Future<void> loadImageFromUrl(String imageUrl) async {
+    try {
+      final response = await http.get(Uri.parse(imageUrl));
+      final bytes = response.bodyBytes;
+
+      // Save to temp file with a unique name (timestamp)
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/temp_image_${DateTime.now().millisecondsSinceEpoch}.jpg');
+      await file.writeAsBytes(bytes);
+
+      imageController.pickedImage.value = file; // ✅ triggers UI update
+    } catch (e) {
+      print("Image load error: $e");
     }
   }
 
@@ -200,7 +251,12 @@ class DisputeController extends GetxController {
         showSnackBar('Enter disputed amt.');
         return;
       } else if (settelledAmt.value.isEmpty) {
-        showSnackBar('No settled amt.');
+        showSnackBar('Enter settled amt.');
+        return;
+      } else if (double.tryParse(settelledAmt.value) != null &&
+          double.tryParse(disputeAmt.value) != null &&
+          double.parse(settelledAmt.value) > double.parse(disputeAmt.value)) {
+        showSnackBar('Settled amt. cannot be greater than disputed amt.');
         return;
       }
 

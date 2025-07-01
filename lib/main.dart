@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: "Association"
+      title: "GNRVA"
           "",
       debugShowCheckedModeBanner: false,
       initialRoute: RouteConstant.startScreen,

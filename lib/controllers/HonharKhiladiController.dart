@@ -25,6 +25,8 @@ import 'categoryController.dart';
 class Honharkhiladicontroller extends GetxController {
   var isDataLoading = false.obs;
   var pdtUrl = 'Customer'.obs;
+  var xmlUrl = 'Customer'.obs;
+  var screen = 'Honhar'.obs;
   var selectedcategory = "Easy".obs; //default easy
   List<dynamic> pastScores = [];
 //  var honharList = <Honharlist>[].obs;        // full list
@@ -34,14 +36,24 @@ class Honharkhiladicontroller extends GetxController {
   void onInit() {
     super.onInit();
     pastScores = GetStorage().read('past_scores') ?? [];
-    getList("Customer");
+
+    final args = Get.arguments;
+    if (args != null && args['screen'] != null) {
+      final s = args['screen'];
+      screen.value=s;
+      getList("Customer");
+    }else{
+      getList("Customer");
+    }
+
     downloadAccountDetailsReportPdf('Customer');
+    downloadAccountDetailsReportXml('Customer');
+
     // Initially show full list
     ever(honharList, (_) => filteredList.value = honharList);
-   /* suppliers.addAll([
-      Supplier(name: "XYZ Corp", mobile: "1234567890", station: "Mumbai", address: "Sector 10"),
-      Supplier(name: "LMN Ltd.", mobile: "9998887776", station: "Pune", address: "Main Road, Block B"),
-    ]);*/
+
+
+
   }
 
   Future<void> getList(String type) async {
@@ -55,7 +67,7 @@ class Honharkhiladicontroller extends GetxController {
 
     try {
       final List<Map<String, dynamic>>? mcqs =
-      await apiService.honharKhiladiList(selectedcategory.value, token!);
+      await apiService.honharKhiladiList(screen.toString(),selectedcategory.value, token!);
 
       isDataLoading.value = false;
 
@@ -125,37 +137,71 @@ class Honharkhiladicontroller extends GetxController {
     final String fileName = "Downloaded_PDF.pdf";
 
     try {
-      // Step 1: Ask permission (only on Android)
+      // ✅ STEP 1: Ask for permission based on Android version
       if (Platform.isAndroid) {
-        final status = await Permission.storage.request();
+        if (await Permission.manageExternalStorage.request().isDenied) {
+          Get.snackbar("Permission Denied", "Storage access is required.");
+          return;
+        }
+      }
+
+      // ✅ STEP 2: Use a valid path like /storage/emulated/0/Download
+      final Directory downloadDir = Directory('/storage/emulated/0/Download');
+      final String filePath = "${downloadDir.path}/$fileName";
+
+      // ✅ STEP 3: Download the file
+      Dio dio = Dio();
+      await dio.download(pdfUrl, filePath);
+
+      Get.snackbar("Download Complete", "PDF saved to ${downloadDir.path}");
+
+      // ✅ STEP 4: Open the file
+      final result = await OpenFile.open(filePath);
+      if (result.type == ResultType.noAppToOpen) {
+        Get.snackbar("Notice", "File downloaded but no app found to open PDF.");
+      }
+    } catch (e) {
+      Get.snackbar("Error", "Failed to download or open PDF: $e");
+    }
+  }
+
+
+  Future<void> downloadAndOpenXml() async {
+    final String pdfUrl = xmlUrl.value;
+    final String fileName = "Download.xlsx";
+
+    try {
+      // ✅ Step 1: Ask for proper permission
+      if (Platform.isAndroid) {
+        final status = await Permission.manageExternalStorage.request();
         if (!status.isGranted) {
           Get.snackbar("Permission Denied", "Storage access is required.");
           return;
         }
       }
 
-      // Step 2: Get download directory
-      Directory appDir;
-      if (Platform.isAndroid) {
-        appDir = await getExternalStorageDirectory() ?? await getApplicationDocumentsDirectory();
-      } else {
-        appDir = await getApplicationDocumentsDirectory();
-      }
+      // ✅ Step 2: Save in Download folder (public)
+      final Directory downloadDir = Directory('/storage/emulated/0/Download');
+      final String filePath = "${downloadDir.path}/$fileName";
 
-      final String filePath = "${appDir.path}/$fileName";
-
-      // Step 3: Download the file
+      // ✅ Step 3: Download the file
       Dio dio = Dio();
       await dio.download(pdfUrl, filePath);
 
-      Get.snackbar("Download Complete", "PDF saved to ${appDir.path}");
+      Get.snackbar("Download Complete", "File saved to ${downloadDir.path}");
 
-      // Step 4: Open the PDF
-      await OpenFile.open(filePath);
+      // ✅ Step 4: Open the file
+      final result = await OpenFile.open(filePath);
+      if (result.type == ResultType.noAppToOpen) {
+        Get.snackbar("Notice", "Downloaded, but no app found to open XML file.");
+      }
     } catch (e) {
-      Get.snackbar("Error", "Failed to download or open PDF: $e");
+      Get.snackbar("Error", "Failed to download/open XML: $e");
     }
   }
+
+
+
 
 
   Future downloadAccountDetailsReportPdf(String accountType) async {
@@ -202,6 +248,50 @@ class Honharkhiladicontroller extends GetxController {
     }
   }
 
+  Future downloadAccountDetailsReportXml(String accountType) async {
+    isDataLoading.value = true;
+    final box = GetStorage();
+    String? token = box.read('token');
+    try {
+      final url = Uri.parse(
+        'https://association.ssspltd.com/api/Account/DownloadDisputeDetailsExcelFile?accountType=$accountType',
+      );
+      print("Url"+url.toString());
+      final response = await http.post(
+        url,
+        headers: {
+          'Accept': '*/*',
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: '',
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print("Body"+data.toString());
+        // Check the "success" field in the response JSON
+        if (data['success'] == true && data['data'] != null) {
+          var url=data['data'].toString();
+          xmlUrl.value=url.toString();
+          // GetStorage().write('user_name', name);
+
+        } else {
+          // Handle error scenario from the API response
+          final errorMessage = data['message'] ?? 'Login failed';
+          showSnackBar(errorMessage);
+        }
+      } else {
+        // Non-200 HTTP status
+        showSnackBar('Login failed with status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      showSnackBar('Login Error: $e');
+    } finally {
+      isDataLoading.value = false;
+    }
+  }
+
 }
 
 
@@ -209,6 +299,7 @@ class Honharkhiladicontroller extends GetxController {
 class Honharlist {
   final String name;
   final String accountType;
+  final String accountCategory;
   final String ownerName;
   final int id;
   final String mobile;
@@ -220,6 +311,7 @@ class Honharlist {
   Honharlist({
     required this.name,
     required this.accountType,
+    required this.accountCategory,
     required this.ownerName,
     required this.id,
     required this.mobile,
@@ -233,6 +325,7 @@ class Honharlist {
     return Honharlist(
       name: json['accountName'] ?? '',
       accountType: json['accountType'] ?? '',
+      accountCategory: json['accountCategory'] ?? '',
       ownerName: json['ownerName'] ?? '',
       id: json['id'] ?? '',
       mobile: json['mobileNo'] ?? '',

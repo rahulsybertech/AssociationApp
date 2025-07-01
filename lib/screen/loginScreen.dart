@@ -23,87 +23,92 @@ class loginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final Logincontroller controller = Get.put(Logincontroller());
     final TextEditingController mobileController = TextEditingController();
+
     return Obx(
           () => Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              const SizedBox(height: 150),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.asset(
-                  'assets/icons/app_icon.png',
-                  width: 100,
-                  height: 100,
-                ),
-              ),
-              const CustomText(
-                text: 'Garment Association',
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                textColor: redColor2,
-              ),
-              const SizedBox(height: 40),
-              TextField(
-                controller: mobileController,
-                keyboardType: TextInputType.phone,
-                decoration: InputDecoration(
-                  hintText: "Enter your Mobile Number",
-                  filled: true,
-                  fillColor: Colors.grey.shade100,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
+        resizeToAvoidBottomInset: true, // important!
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                const SizedBox(height: 80), // reduce top margin for small screens
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset(
+                    'assets/icons/app_icon.png',
+                    width: 100,
+                    height: 100,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                 ),
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: () {
-                  final number = mobileController.text.trim();
-                  if (number.isNotEmpty && number.length == 10) {
-                    controller.login(number);
-                  } else {
-                    showSnackBar('Enter valid mobile number');
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.pinkAccent,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  textStyle: const TextStyle(fontSize: 18),
-                ),
-                child: controller.isDataLoading.value
-                    ? const Loader(color: Colors.white)
-                    : const CustomText(
-                  text: 'Send OTP',
-                  fontSize: 15,
+                const SizedBox(height: 20),
+                const CustomText(
+                  text: 'Garment Association',
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  textColor: Colors.white,
+                  textColor: redColor2,
                 ),
-              ),
-              const SizedBox(height: 10),
-              TextButton(
-                onPressed: () {
-                  controller.callAccessWithoutLogin();
-                },
-                child: Text(
-                  'Contuine without login',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.redAccent,
+                const SizedBox(height: 40),
+                TextField(
+                  controller: mobileController,
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    hintText: "Enter your Mobile Number",
+                    filled: true,
+                    fillColor: Colors.grey.shade100,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                   ),
                 ),
-              )
-              // Other UI...
-            ],
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: () {
+                    final number = mobileController.text.trim();
+                    if (number.isNotEmpty && number.length == 10) {
+                      controller.login(number);
+                    } else {
+                      showSnackBar('Enter valid mobile number');
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.pinkAccent,
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    textStyle: const TextStyle(fontSize: 18),
+                  ),
+                  child: controller.isDataLoading.value
+                      ? const Loader(color: Colors.white)
+                      : const CustomText(
+                    text: 'Send OTP',
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    textColor: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextButton(
+                  onPressed: () {
+                    controller.callAccessWithoutLogin();
+                  },
+                  child: const Text(
+                    'Continue without login',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.redAccent,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
 }
 
 void showOtpBottomSheet(BuildContext context, {

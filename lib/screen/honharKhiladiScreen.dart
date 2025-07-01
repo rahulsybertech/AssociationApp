@@ -22,12 +22,15 @@ class honharKhiladiScreen extends StatelessWidget {
 
   const honharKhiladiScreen({super.key});
 
+
   @override
   Widget build(BuildContext context) {
 
     final Honharkhiladicontroller controller = Get.put(Honharkhiladicontroller());
  //   controller.getList();
     final RxString selectedFilter = 'Customer'.obs;
+    final box = GetStorage();
+    String? accountType = box.read('accountType');
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -36,67 +39,101 @@ class honharKhiladiScreen extends StatelessWidget {
           children: [
             /// Custom App Bar
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(0.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-
                       /// 🔙 Back Icon with action
-                      GestureDetector(
-                        onTap: () {
-                          Get.back(); // or Navigator.pop(context);
-                        },
-                        child: const Icon(Icons.arrow_back, color: Colors.red),
-                      ),
-
-                      /// ⬇️ Filter Dropdown (center item)
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          /// 🔽 Left Side Dropdown Filter
-                          Obx(() => PopupMenuButton<String>(
-                            onSelected: (value) {
-                              selectedFilter.value = value;
-                              GetStorage().write('category', value);
-                              controller.searchController.clear(); //  clear the search field
-                              controller.filterHonharList("");     // reset the filtered list
-                              controller.getList(value);
-                              controller.downloadAccountDetailsReportPdf(value);
+                      if (controller.screen == 'Honhar') ...[
+                        Padding(
+                          padding: const EdgeInsets.only(left: 16.0,), // padding around back icon
+                          child: GestureDetector(
+                            onTap: () {
+                              Get.back(); // or Navigator.pop(context);
                             },
-                            itemBuilder: (context) => const [
-                              PopupMenuItem(value: "Customer", child: Text("Customer")),
-                              PopupMenuItem(value: "Supplier", child: Text("Supplier")),
+                            child: const Icon(Icons.arrow_back, color: Colors.red),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16.0), // padding around filter row
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              /// 🔽 Left Side Dropdown Filter
+                              Obx(() => PopupMenuButton<String>(
+                                onSelected: (value) {
+                                  selectedFilter.value = value;
+                                  GetStorage().write('category', value);
+                                  controller.searchController.clear();
+                                  controller.filterHonharList("");
+                                  controller.getList(value);
+                                  controller.downloadAccountDetailsReportPdf(value);
+                                  controller.downloadAccountDetailsReportXml(value);
+                                },
+                                itemBuilder: (context) => const [
+                                  PopupMenuItem(value: "Customer", child: Text("Customer")),
+                                  PopupMenuItem(value: "Supplier", child: Text("Supplier")),
+                                ],
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.filter_alt, color: Colors.red),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      selectedFilter.value,
+                                      style: const TextStyle(
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const Icon(Icons.arrow_drop_down, color: Colors.red),
+                                  ],
+                                ),
+                              )),
+
+                              /// ⚠️ Right Side Icon (optional)
+                              /* Container(
+          decoration: BoxDecoration(
+            color: Colors.red.shade100,
+            shape: BoxShape.circle,
+          ),
+          padding: const EdgeInsets.all(8),
+          child: const Icon(Icons.warning_amber_rounded, color: Colors.red),
+        ), */
                             ],
+                          ),
+                        ),
+                      ],
+
+                      if(controller.screen=='All Accounts')
+                        if (controller.screen == 'All Accounts')
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                             child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Icon(Icons.filter_alt, color: Colors.red),
-                                const SizedBox(width: 6),
-                                Text(
-                                  selectedFilter.value,
-                                  style: const TextStyle(
-                                    color: Colors.red,
+                                const BackButton(color: Colors.black),
+                                const Text(
+                                  'All Accounts',
+                                  style: TextStyle(
+                                    fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                const Icon(Icons.arrow_drop_down, color: Colors.red),
+                               /* Image.asset(
+                                  'assets/icons/app_icon.png',
+                                  width: 36,
+                                  height: 36,
+                                  fit: BoxFit.cover,
+                                ),*/
                               ],
                             ),
-                          )),
+                          ),
 
-                          /// ⚠️ Right Side Icon
-            /*              Container(
-                            decoration: BoxDecoration(
-                              color: Colors.red.shade100,
-                              shape: BoxShape.circle,
-                            ),
-                            padding: const EdgeInsets.all(8),
-                            child: const Icon(Icons.warning_amber_rounded, color: Colors.red),
-                          ),*/
-                        ],
-                      )
+                      /// ⬇️ Filter Dropdown (center item)
+
+
                     ],
                   ),
 
@@ -134,44 +171,71 @@ class honharKhiladiScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Left: Records found
-                      Obx(() => Text(
-                        "${controller.filteredList.length} Records Found",
-                        style: const TextStyle(
-                          color: Colors.red,
-                          fontSize: 12,
-                        ),
-                      )),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0,right: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Left: Records found
+                        Obx(() => Text(
+                          "${controller.filteredList.length} Records Found",
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
+                          ),
+                        )),
 
-                      // Right: Clickable image to open PDF
-                      GestureDetector(
-                        onTap: controller.downloadAndOpenPdf,
-                        child: Row(
+                        // Right: Clickable image to open PDF
+                        if(controller.screen=='Honhar')
+                        Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Image.asset(
-                              'assets/icons/download_pdf.png',
-                              width: 25,
-                              height: 25,
-                              color: Colors.red,
+                            // PDF Icon with tap
+                            GestureDetector(
+                              onTap: controller.downloadAndOpenPdf,
+                              child: Column(
+                                children: [
+                                  Image.asset(
+                                    'assets/icons/download_pdf.png',
+                                    width: 30,
+                                    height: 30,
+                                    color: Colors.red,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  const Text(
+                                    'PDF',
+                                    style: TextStyle(fontSize: 12, color: Colors.black),
+                                  ),
+                                ],
+                              ),
                             ),
-                            const SizedBox(width: 6), // spacing between icon and text
-                            const Text(
-                              "Download PDF",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.red,
-                                fontWeight: FontWeight.w500,
+                            const SizedBox(width: 20), // spacing between PDF and XML
+
+                            // XML Icon with tap
+                            GestureDetector(
+                              onTap: controller.downloadAndOpenXml, // define this in your controller
+                              child: Column(
+                                children: [
+                                  Image.asset(
+                                    'assets/icons/xml.png',
+                                    width: 30,
+                                    height: 30,
+                                    color: Colors.red,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  const Text(
+                                    'XML',
+                                    style: TextStyle(fontSize: 12, color: Colors.black),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    ],
+
+                      ],
+                    ),
                   )
 
                 ],
@@ -195,20 +259,23 @@ class honharKhiladiScreen extends StatelessWidget {
                     final supplier = controller.filteredList[index];
                     return GestureDetector(
                       onTap: () {
-                        // 👉 Open details screen
-                        GetStorage().write('id', supplier.id);
-                       /* Get.toNamed(
-                          RouteConstant.registerAccountScreen,
+                        if(controller.screen=='Honhar'){
+                          GetStorage().write('id', supplier.id);
+                          Get.toNamed(
+                            RouteConstant.detailsScreen,
                             arguments: {
                               'supplier': supplier, // passing full object
                             },
-                        );*/
-                        Get.toNamed(
+                          );
+                        }
+                        // 👉 Open details screen
+
+                        /*Get.toNamed(
                           RouteConstant.detailsScreen,
                           arguments: {
                             'supplier': supplier, // passing full object
                           },
-                        );
+                        );*/
                       },
                       child: Card(
                         margin: const EdgeInsets.all(10),
@@ -216,47 +283,71 @@ class honharKhiladiScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         elevation: 3,
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // 👤 Profile Image - open image full screen
-                              GestureDetector(
-                                onTap: () {
-                                  if (supplier.accountImagePath != null &&
-                                      supplier.accountImagePath!.isNotEmpty) {
-
-                                        Get.to(() => FullScreenImageView(assetPath: supplier.accountImagePath));
-                                  }
-                                },
-                                child: CircleAvatar(
-                                  radius: 28,
-                                  backgroundImage:
-                                  (supplier.accountImagePath != null && supplier.accountImagePath!.isNotEmpty)
-                                      ? NetworkImage(supplier.accountImagePath!)
-                                      : const AssetImage('assets/icons/user.png') as ImageProvider,
-                                  backgroundColor: Colors.grey[200],
-                                ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // 👤 Left Side: Image + Info
+                            Expanded(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 10, left: 10), // 👈 top & start (left) margin
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        if (supplier.accountImagePath != null &&
+                                            supplier.accountImagePath!.isNotEmpty) {
+                                          Get.to(() => FullScreenImageView(assetPath: supplier.accountImagePath));
+                                        }
+                                      },
+                                      child: CircleAvatar(
+                                        radius: 28,
+                                        backgroundImage: (supplier.accountImagePath != null &&
+                                            supplier.accountImagePath!.isNotEmpty)
+                                            ? NetworkImage(supplier.accountImagePath!)
+                                            : const AssetImage('assets/icons/user.png') as ImageProvider,
+                                        backgroundColor: Colors.grey[200],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 10), // 👈 Add top margin here
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          _infoRow('assets/icons/user.png', 'Name', supplier.name),
+                                          _infoRow('assets/icons/mobile.png', 'Mobile', supplier.mobile),
+                                          _infoRow('assets/icons/gst.png', 'GST', supplier.gstNo),
+                                          _infoRow('assets/icons/station.png', 'Station', supplier.station),
+                                          _infoRow('assets/icons/home.png', 'Address', supplier.address),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 12),
+                            ),
 
-                              // 📝 Info column
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    _infoRow('assets/icons/user.png', 'Name', supplier.name),
-                                    _infoRow('assets/icons/mobile.png', 'Mobile', supplier.mobile),
-                                    _infoRow('assets/icons/gst.png', 'GST', supplier.gstNo),
-                                    _infoRow('assets/icons/station.png', 'Station', supplier.station),
-                                    _infoRow('assets/icons/home.png', 'Address', supplier.address),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                            // ✏️ Edit Icon Button
+                            if(accountType=="Admin")
+                            IconButton(
+                              icon: const Icon(Icons.edit_outlined, color: Colors.black),
+                              onPressed: () {
+                                // 👉 Same as tap or different edit logic
+                                Get.toNamed(
+                                  RouteConstant.registerAccountScreen,
+                                  arguments: {
+                                    'supplier': supplier,
+                                  },
+                                );
+                              },
+                            ),
+                          ],
                         ),
+
                       ),
                     );
                     ;
@@ -292,9 +383,11 @@ class honharKhiladiScreen extends StatelessWidget {
           Text(
             '$label: ',
             style: const TextStyle(fontWeight: FontWeight.bold),
+            maxLines: 1,
           ),
           Expanded(
-            child: Text(value),
+            child: Text(value,
+              maxLines: 1,),
           ),
         ],
       ),
