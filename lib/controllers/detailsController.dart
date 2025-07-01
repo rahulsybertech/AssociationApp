@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -93,44 +94,38 @@ class detailsController extends GetxController {
     }
   }
   Future<void> downloadAndOpenPdf() async {
+    final granted = await requestStoragePermission();
+    if (!granted) {
+      Get.snackbar("Permission Denied", "Storage access is required.");
+      return;
+    }
+
     final String pdfUrl = pdtUrl.value;
-    final String fileName = "Downloaded_PDF.pdf";
+    const String fileName = "Downloaded_PDF.pdf";
 
     try {
-      // Step 1: Ask permission (only on Android)
-      if (Platform.isAndroid) {
-        final status = await Permission.storage.request();
-        if (!status.isGranted) {
-          Get.snackbar("Permission Denied", "Storage access is required.");
-          return;
-        }
-      }
-
-      // Step 2: Get download directory
-      Directory appDir;
-      if (Platform.isAndroid) {
-        appDir = await getExternalStorageDirectory() ?? await getApplicationDocumentsDirectory();
-      } else {
-        appDir = await getApplicationDocumentsDirectory();
+      // ✅ Step 1: Use app-specific external directory (safe for all Android versions)
+      final Directory? appDir = await getExternalStorageDirectory();
+      if (appDir == null) {
+        Get.snackbar("Error", "Cannot access storage.");
+        return;
       }
 
       final String filePath = "${appDir.path}/$fileName";
 
-      // Step 3: Download the file
+      // ✅ Step 2: Download the PDF
       Dio dio = Dio();
       await dio.download(pdfUrl, filePath);
 
-      Get.snackbar("Download Complete", "PDF saved to ${appDir.path}");
+      Get.snackbar("Download Complete", "PDF saved to: ${appDir.path}");
 
-      // Step 4: Open the PDF
-      await OpenFile.open(filePath);
+      // ✅ Step 3: Open the PDF file
+      final result = await OpenFile.open(filePath);
+      if (result.type == ResultType.noAppToOpen) {
+        Get.snackbar("Notice", "PDF downloaded, but no app found to open it.");
+      }
     } catch (e) {
-      Get.snackbar(
-        "Oops!",
-        "PDF Not Available.",
-        backgroundColor: Colors.redAccent,
-        colorText: Colors.white,
-      );
+      Get.snackbar("Error", "Failed to download/open PDF: $e");
     }
   }
   Future downloadAccountDetailsReportPdf(String accountType) async {
@@ -223,7 +218,22 @@ class detailsController extends GetxController {
     }
   }
 
+  Future<bool> requestStoragePermission() async {
+    if (Platform.isAndroid) {
+      final deviceInfo = DeviceInfoPlugin();
+      final androidInfo = await deviceInfo.androidInfo;
+      final sdkInt = androidInfo.version.sdkInt;
 
+      if (sdkInt >= 33) {
+        // Android 13+ — no runtime permission needed if you're saving to app folder
+        return true;
+      } else {
+        var status = await Permission.storage.request();
+        return status.isGranted;
+      }
+    }
+    return true;
+  }
 
 
   @override

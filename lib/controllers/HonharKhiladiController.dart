@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +36,7 @@ class Honharkhiladicontroller extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    requestStoragePermission();
     pastScores = GetStorage().read('past_scores') ?? [];
 
     final args = Get.arguments;
@@ -133,72 +135,96 @@ class Honharkhiladicontroller extends GetxController {
   }
 
   Future<void> downloadAndOpenPdf() async {
+    final granted = await requestStoragePermission();
+    if (!granted) {
+      Get.snackbar("Permission Denied", "Storage access is required.");
+      return;
+    }
+
     final String pdfUrl = pdtUrl.value;
-    final String fileName = "Downloaded_PDF.pdf";
+    const String fileName = "Downloaded_PDF.pdf";
 
     try {
-      // ✅ STEP 1: Ask for permission based on Android version
-      if (Platform.isAndroid) {
-        if (await Permission.manageExternalStorage.request().isDenied) {
-          Get.snackbar("Permission Denied", "Storage access is required.");
-          return;
-        }
+      // ✅ Step 1: Use app-specific external directory (safe for all Android versions)
+      final Directory? appDir = await getExternalStorageDirectory();
+      if (appDir == null) {
+        Get.snackbar("Error", "Cannot access storage.");
+        return;
       }
 
-      // ✅ STEP 2: Use a valid path like /storage/emulated/0/Download
-      final Directory downloadDir = Directory('/storage/emulated/0/Download');
-      final String filePath = "${downloadDir.path}/$fileName";
+      final String filePath = "${appDir.path}/$fileName";
 
-      // ✅ STEP 3: Download the file
+      // ✅ Step 2: Download the PDF
       Dio dio = Dio();
       await dio.download(pdfUrl, filePath);
 
-      Get.snackbar("Download Complete", "PDF saved to ${downloadDir.path}");
+      Get.snackbar("Download Complete", "PDF saved to: ${appDir.path}");
 
-      // ✅ STEP 4: Open the file
+      // ✅ Step 3: Open the PDF file
       final result = await OpenFile.open(filePath);
       if (result.type == ResultType.noAppToOpen) {
-        Get.snackbar("Notice", "File downloaded but no app found to open PDF.");
+        Get.snackbar("Notice", "PDF downloaded, but no app found to open it.");
       }
     } catch (e) {
-      Get.snackbar("Error", "Failed to download or open PDF: $e");
+      Get.snackbar("Error", "Failed to download/open PDF: $e");
     }
+  }
+
+  Future<bool> requestStoragePermission() async {
+    if (Platform.isAndroid) {
+      final deviceInfo = DeviceInfoPlugin();
+      final androidInfo = await deviceInfo.androidInfo;
+      final sdkInt = androidInfo.version.sdkInt;
+
+      if (sdkInt >= 33) {
+        // Android 13+ — no runtime permission needed if you're saving to app folder
+        return true;
+      } else {
+        var status = await Permission.storage.request();
+        return status.isGranted;
+      }
+    }
+    return true;
   }
 
 
   Future<void> downloadAndOpenXml() async {
-    final String pdfUrl = xmlUrl.value;
-    final String fileName = "Download.xlsx";
+    final String fileUrl = xmlUrl.value;
+    const String fileName = "Downloaded_File.xlsx";
+
+    // ✅ Use the safe permission method
+    final granted = await requestStoragePermission();
+    if (!granted) {
+      Get.snackbar("Permission Denied", "Storage permission is required.");
+      return;
+    }
 
     try {
-      // ✅ Step 1: Ask for proper permission
-      if (Platform.isAndroid) {
-        final status = await Permission.manageExternalStorage.request();
-        if (!status.isGranted) {
-          Get.snackbar("Permission Denied", "Storage access is required.");
-          return;
-        }
+      // ✅ Use app-specific external storage directory
+      final Directory? appDir = await getExternalStorageDirectory();
+      if (appDir == null) {
+        Get.snackbar("Error", "Could not access device storage.");
+        return;
       }
 
-      // ✅ Step 2: Save in Download folder (public)
-      final Directory downloadDir = Directory('/storage/emulated/0/Download');
-      final String filePath = "${downloadDir.path}/$fileName";
+      final String filePath = "${appDir.path}/$fileName";
 
-      // ✅ Step 3: Download the file
+      // ⬇️ Download the file using Dio
       Dio dio = Dio();
-      await dio.download(pdfUrl, filePath);
+      await dio.download(fileUrl, filePath);
 
-      Get.snackbar("Download Complete", "File saved to ${downloadDir.path}");
+      Get.snackbar("Download Complete", "File saved to: ${appDir.path}");
 
-      // ✅ Step 4: Open the file
+      // 📂 Open the file
       final result = await OpenFile.open(filePath);
       if (result.type == ResultType.noAppToOpen) {
-        Get.snackbar("Notice", "Downloaded, but no app found to open XML file.");
+        Get.snackbar("No App Found", "Install a spreadsheet app to open this file.");
       }
     } catch (e) {
-      Get.snackbar("Error", "Failed to download/open XML: $e");
+      Get.snackbar("Error", "Failed to download/open file: $e");
     }
   }
+
 
 
 
