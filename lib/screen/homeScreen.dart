@@ -119,7 +119,6 @@ class homeScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                             child: Image.network(
                               banner.bannerImagePath ?? '',
-                              fit: BoxFit.cover,
                               width: double.infinity,
                               errorBuilder: (context, error, stackTrace) =>
                               const Center(child: Icon(Icons.error, color: Colors.red)),
