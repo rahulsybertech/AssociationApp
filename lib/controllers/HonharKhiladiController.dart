@@ -145,26 +145,31 @@ class Honharkhiladicontroller extends GetxController {
     const String fileName = "Downloaded_PDF.pdf";
 
     try {
-      // ✅ Step 1: Use app-specific external directory (safe for all Android versions)
-      final Directory? appDir = await getExternalStorageDirectory();
-      if (appDir == null) {
-        Get.snackbar("Error", "Cannot access storage.");
+      Directory? saveDir;
+
+      if (Platform.isAndroid) {
+        saveDir = await getExternalStorageDirectory();
+      } else if (Platform.isIOS) {
+        saveDir = await getApplicationDocumentsDirectory();
+      }
+
+      if (saveDir == null) {
+        Get.snackbar("Error", "Unable to access file directory.");
         return;
       }
 
-      final String filePath = "${appDir.path}/$fileName";
+      final String filePath = "${saveDir.path}/$fileName";
 
-      // ✅ Step 2: Download the PDF
       Dio dio = Dio();
       await dio.download(pdfUrl, filePath);
 
-      Get.snackbar("Download Complete", "PDF saved to: ${appDir.path}");
+      Get.snackbar("Download Complete", "PDF saved to: $filePath");
 
-      // ✅ Step 3: Open the PDF file
       final result = await OpenFile.open(filePath);
       if (result.type == ResultType.noAppToOpen) {
         Get.snackbar("Notice", "PDF downloaded, but no app found to open it.");
       }
+
     } catch (e) {
       Get.snackbar("Error", "Failed to download/open PDF: $e");
     }
@@ -188,11 +193,12 @@ class Honharkhiladicontroller extends GetxController {
   }
 
 
+
   Future<void> downloadAndOpenXml() async {
     final String fileUrl = xmlUrl.value;
     const String fileName = "Downloaded_File.xlsx";
 
-    // ✅ Use the safe permission method
+    // ✅ Optional: Only needed on Android 10+ for file access
     final granted = await requestStoragePermission();
     if (!granted) {
       Get.snackbar("Permission Denied", "Storage permission is required.");
@@ -200,8 +206,14 @@ class Honharkhiladicontroller extends GetxController {
     }
 
     try {
-      // ✅ Use app-specific external storage directory
-      final Directory? appDir = await getExternalStorageDirectory();
+      // ✅ Choose directory based on platform
+      Directory? appDir;
+      if (Platform.isAndroid) {
+        appDir = await getExternalStorageDirectory(); // Android
+      } else if (Platform.isIOS) {
+        appDir = await getApplicationDocumentsDirectory(); // iOS safe
+      }
+
       if (appDir == null) {
         Get.snackbar("Error", "Could not access device storage.");
         return;
@@ -209,17 +221,18 @@ class Honharkhiladicontroller extends GetxController {
 
       final String filePath = "${appDir.path}/$fileName";
 
-      // ⬇️ Download the file using Dio
+      // ⬇️ Download file
       Dio dio = Dio();
       await dio.download(fileUrl, filePath);
 
-      Get.snackbar("Download Complete", "File saved to: ${appDir.path}");
+      Get.snackbar("Download Complete", "File saved to: $filePath");
 
-      // 📂 Open the file
+      // 📂 Open the downloaded file
       final result = await OpenFile.open(filePath);
       if (result.type == ResultType.noAppToOpen) {
-        Get.snackbar("No App Found", "Install a spreadsheet app to open this file.");
+        Get.snackbar("No App Found", "Install an app to open .xlsx files.");
       }
+
     } catch (e) {
       Get.snackbar("Error", "Failed to download/open file: $e");
     }

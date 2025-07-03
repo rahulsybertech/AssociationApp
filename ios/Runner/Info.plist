@@ -4,14 +4,22 @@
 <key>NSAppTransportSecurity</key>
 <dict>
 <key>NSCameraUsageDescription</key>
-<string>This app uses the camera to allow users to take photos for uploading banners or profile pictures. For example, users can take a picture of their shop to display it in their business profile.</string>
+<string>This app uses the camera to allow users to take photos for uploading banners or profile pictures.</string>
 
 <key>NSPhotoLibraryUsageDescription</key>
-<string>This app accesses your photo library to let you choose images for your profile or banners. For example, users can select a picture of their store from their gallery.</string>
-    <key>NSPhotoLibraryAddUsageDescription</key>
-      <key>NSAllowsArbitraryLoads</key>
-      <true/>
-    <string>We need access to save photos.</string>
+<string>This app accesses your photo library to let you choose images for your profile or banners.</string>
+
+<key>NSPhotoLibraryAddUsageDescription</key>
+<string>We need access to save photos to your photo library.</string>
+
+<key>NSDocumentsFolderUsageDescription</key>
+<string>This app needs to save files for offline access.</string>
+
+<key>NSAppTransportSecurity</key>
+<dict>
+    <key>NSAllowsArbitraryLoads</key>
+    <true/>
+</dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

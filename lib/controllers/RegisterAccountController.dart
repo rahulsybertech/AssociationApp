@@ -125,7 +125,7 @@ class RegisterAccountController extends GetxController {
     };
 
 // Conditionally add accountCategory
-    if (accountCate == 'other') {
+    if (accountType.value == 'Other') {
       bodyMap["accountCategory"] = selectedCategory.value;
     } else {
       bodyMap["accountCategory"] = accountCate;
