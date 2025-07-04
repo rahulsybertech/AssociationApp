@@ -6,27 +6,33 @@ import 'appcolors.dart';
 
 
 showSnackBar(
-  String message, {
-  Color backgroundColor = redColor,
-  String? titleText,
-}) {
+    String message, {
+      Color backgroundColor = redColor,
+      String? titleText,
+    }) {
   if (!Get.isSnackbarOpen) {
     Get.snackbar(
-      '',
+      '', // Optional title
       message,
       backgroundColor: backgroundColor,
-      titleText:
-          titleText != null
-              ? Text(
-                titleText,
-                style: TextStyle(
-                  color: whiteColor,
-                  fontWeight: FontWeight.bold,
-                ),
-              )
-              : SizedBox.shrink(),
-      dismissDirection: DismissDirection.horizontal,
       colorText: whiteColor,
+      snackPosition: SnackPosition.BOTTOM, // ✅ Snackbar will show at bottom
+      margin: const EdgeInsets.all(12),     // Optional spacing from screen edges
+      duration: const Duration(seconds: 1),
+      dismissDirection: DismissDirection.horizontal,
+      titleText: titleText != null
+          ? Text(
+        titleText,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      )
+          : null,
     );
   }
 }
+
+
+
+

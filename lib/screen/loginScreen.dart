@@ -52,9 +52,13 @@ class loginScreen extends StatelessWidget {
                 TextField(
                   controller: mobileController,
                   keyboardType: TextInputType.phone,
+                  maxLength: 10,
+                  textInputAction: TextInputAction.done,
+
                   decoration: InputDecoration(
                     hintText: "Enter your Mobile Number",
                     filled: true,
+
                     fillColor: Colors.grey.shade100,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),

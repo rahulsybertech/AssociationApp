@@ -121,64 +121,82 @@ class bannerScreen extends StatelessWidget {
 
                   SizedBox(
                     width: double.infinity,
-                    child: GestureDetector(
-                      onTap: () => _showSourcePicker(context),
-                      child: Obx(() {
-                        final pickedFile = imageController.pickedImage.value;
+                    child: Column(
+                      children: [
+                        GestureDetector(
+                          onTap: () => _showSourcePicker(context),
+                          child: Obx(() {
+                            final pickedFile = imageController.pickedImage.value;
 
-                        return Center( // 👈 Center the entire container
-                          child: Container(
-                            key: imageKey,
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey.shade400),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: pickedFile != null
-                                ? Stack(
-                              alignment: Alignment.topRight,
-                              children: [
-                                ClipRRect(
+                            return Center(
+                              child: Container(
+                                key: imageKey,
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey.shade400),
                                   borderRadius: BorderRadius.circular(8),
-                                  child: Image.file(
-                                    pickedFile,
-                                    width: 120,
-                                    height: 120,
-                                    fit: BoxFit.cover,
-                                  ),
                                 ),
-                                GestureDetector(
-                                  onTap: () {
-                                    imageController.pickedImage.value = null;
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(2),
-                                    decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black26,
-                                          blurRadius: 4,
-                                          offset: Offset(2, 2),
+                                child: pickedFile != null
+                                    ? Stack(
+                                  alignment: Alignment.topRight,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.file(
+                                        pickedFile,
+                                        width: 120,
+                                        height: 120,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        imageController.pickedImage.value = null;
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black26,
+                                              blurRadius: 4,
+                                              offset: Offset(2, 2),
+                                            ),
+                                          ],
                                         ),
-                                      ],
+                                        child: const Icon(
+                                          Icons.close,
+                                          color: Colors.red,
+                                          size: 25,
+                                        ),
+                                      ),
                                     ),
-                                    child: const Icon(
-                                      Icons.close,
-                                      color: Colors.red,
-                                      size: 25,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
-                                : const Icon(Icons.upload_file, color: Colors.red, size: 40),
+                                  ],
+                                )
+                                    : const Icon(Icons.upload_file, color: Colors.red, size: 40),
+                              ),
+                            );
+                          }),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        /// 🔽 Text below the image upload area
+                        const Text(
+                          'Banner must be at least 600x300 pixels with approx 3:1 ratio.',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                            fontStyle: FontStyle.italic,
                           ),
-                        );
-                      }),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   ),
+
 
 
 

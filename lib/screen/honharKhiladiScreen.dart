@@ -45,93 +45,77 @@ class honharKhiladiScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      /// 🔙 Back Icon with action
                       if (controller.screen == 'Honhar') ...[
                         Padding(
-                          padding: const EdgeInsets.only(left: 16.0,), // padding around back icon
-                          child: GestureDetector(
-                            onTap: () {
-                              Get.back(); // or Navigator.pop(context);
-                            },
-                            child: const Icon(Icons.arrow_back, color: Colors.red),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16.0), // padding around filter row
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              /// 🔽 Left Side Dropdown Filter
-                              Obx(() => PopupMenuButton<String>(
-                                onSelected: (value) {
-                                  selectedFilter.value = value;
-                                  GetStorage().write('category', value);
-                                  controller.searchController.clear();
-                                  controller.filterHonharList("");
-                                  controller.getList(value);
-                                  controller.downloadAccountDetailsReportPdf(value);
-                                  controller.downloadAccountDetailsReportXml(value);
-                                },
-                                itemBuilder: (context) => const [
-                                  PopupMenuItem(value: "Customer", child: Text("Customer")),
-                                  PopupMenuItem(value: "Supplier", child: Text("Supplier")),
-                                ],
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.filter_alt, color: Colors.red),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      selectedFilter.value,
-                                      style: const TextStyle(
-                                        color: Colors.red,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const Icon(Icons.arrow_drop_down, color: Colors.red),
-                                  ],
-                                ),
-                              )),
+                              /// 🔙 Back Icon
+                              GestureDetector(
+                                onTap: () => Get.back(),
+                                child: const Icon(Icons.arrow_back, color: Colors.red,size: 35,),
 
-                              /// ⚠️ Right Side Icon (optional)
-                              /* Container(
-          decoration: BoxDecoration(
-            color: Colors.red.shade100,
-            shape: BoxShape.circle,
-          ),
-          padding: const EdgeInsets.all(8),
-          child: const Icon(Icons.warning_amber_rounded, color: Colors.red),
-        ), */
+                              ),
+
+                              /// 🔽 Dropdown Filter
+                              Padding(
+                                padding: const EdgeInsets.only(left: 16.0), // 👈 Add start margin here
+                                child: Obx(() => PopupMenuButton<String>(
+                                  onSelected: (value) {
+                                    selectedFilter.value = value;
+                                    GetStorage().write('category', value);
+                                    controller.searchController.clear();
+                                    controller.filterHonharList("");
+                                    controller.getList(value);
+                                    controller.downloadAccountDetailsReportPdf(value);
+                                    controller.downloadAccountDetailsReportXml(value);
+                                  },
+                                  itemBuilder: (context) => const [
+                                    PopupMenuItem(value: "Customer", child: Text("Customer")),
+                                    PopupMenuItem(value: "Supplier", child: Text("Supplier")),
+                                  ],
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.filter_alt, color: Colors.red),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        selectedFilter.value,
+                                        style: const TextStyle(
+                                          color: Colors.red,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const Icon(Icons.arrow_drop_down, color: Colors.red),
+                                    ],
+                                  ),
+                                )),
+                              ),
+
+                            ],
+                          ),
+                        ),
+                      ]
+
+                      /// For All Accounts
+                      else if (controller.screen == 'All Accounts') ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: const [
+                              BackButton(color: Colors.black),
+                              Text(
+                                'All Accounts',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ],
                           ),
                         ),
                       ],
-
-                      if(controller.screen=='All Accounts')
-                        if (controller.screen == 'All Accounts')
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const BackButton(color: Colors.black),
-                                const Text(
-                                  'All Accounts',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                               /* Image.asset(
-                                  'assets/icons/app_icon.png',
-                                  width: 36,
-                                  height: 36,
-                                  fit: BoxFit.cover,
-                                ),*/
-                              ],
-                            ),
-                          ),
-
-                      /// ⬇️ Filter Dropdown (center item)
 
 
                     ],
@@ -188,6 +172,7 @@ class honharKhiladiScreen extends StatelessWidget {
 
                         // Right: Clickable image to open PDF
                         if(controller.screen=='Honhar')
+                          if(controller.filteredList.length>0)
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [

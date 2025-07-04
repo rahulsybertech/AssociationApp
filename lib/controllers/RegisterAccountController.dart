@@ -148,9 +148,15 @@ class RegisterAccountController extends GetxController {
 
           // onResume-like behavior
           controller.getList(accountType.value);
-          showSnackBar("Record Save Successfully!!.");
+         // showSnackBar("Record Save Successfully!!.");
+          showSnackBar(
+            'Record Save Successfully!!.',
+            backgroundColor: Colors.green,
+            titleText: 'Success',
+          );
           return true;
         } else {
+
           showSnackBar(data['message'] ?? "Something went wrong.");
         }
       } else {
@@ -189,7 +195,11 @@ class RegisterAccountController extends GetxController {
     // 1. Check owner name
 
     if (firmName.isEmpty) {
-      showSnackBar('Enter Firm name');
+      showSnackBar(
+        'Enter Firm name.',
+        backgroundColor: Colors.green,
+        titleText: 'Error',
+      );
       return false;
     }
     if (ownerName.isEmpty) {

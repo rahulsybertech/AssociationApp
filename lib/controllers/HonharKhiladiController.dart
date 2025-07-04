@@ -79,7 +79,12 @@ class Honharkhiladicontroller extends GetxController {
       } else {
         honharList.clear(); // optional: clear if no data
         filteredList.clear();
-        showSnackBar('No records found.');
+      //  showSnackBar('No records found.');
+        showSnackBar(
+          'No records found.',
+          backgroundColor: Colors.green,
+          titleText: 'Success',
+        );
       }
     } catch (e) {
       isDataLoading.value = false;
@@ -95,6 +100,7 @@ class Honharkhiladicontroller extends GetxController {
       filteredList.value = honharList.where((item) {
         final searchLower = query.toLowerCase();
         return item.name.toLowerCase().contains(searchLower) ||
+         item.gstNo.toLowerCase().contains(searchLower) ||
             item.mobile.toLowerCase().contains(searchLower) ||
             item.station.toLowerCase().contains(searchLower) ||
             item.address.toLowerCase().contains(searchLower);
@@ -137,42 +143,70 @@ class Honharkhiladicontroller extends GetxController {
   Future<void> downloadAndOpenPdf() async {
     final granted = await requestStoragePermission();
     if (!granted) {
-      Get.snackbar("Permission Denied", "Storage access is required.");
+      showSnackBar(
+        'Storage permission is required.',
+        backgroundColor: Colors.red,
+        titleText: 'Permission Denied',
+      );
       return;
     }
 
     final String pdfUrl = pdtUrl.value;
     const String fileName = "Downloaded_PDF.pdf";
+    if(pdfUrl.isNotEmpty){
 
-    try {
-      Directory? saveDir;
+      try {
+        Directory? saveDir;
 
-      if (Platform.isAndroid) {
-        saveDir = await getExternalStorageDirectory();
-      } else if (Platform.isIOS) {
-        saveDir = await getApplicationDocumentsDirectory();
+        if (Platform.isAndroid) {
+          saveDir = await getExternalStorageDirectory();
+        } else if (Platform.isIOS) {
+          saveDir = await getApplicationDocumentsDirectory();
+        }
+
+        if (saveDir == null) {
+          showSnackBar(
+            'Unable to access file directory.',
+            backgroundColor: Colors.red,
+            titleText: 'Error',
+          );
+          //   Get.snackbar("Error", "Unable to access file directory.");
+          return;
+        }
+
+        final String filePath = "${saveDir.path}/$fileName";
+
+        Dio dio = Dio();
+        await dio.download(pdfUrl, filePath);
+
+        showSnackBar(
+          'PDF saved to: $filePath',
+          backgroundColor: Colors.green,
+          titleText: 'Download Complete',
+        );
+        //  Get.snackbar("Download Complete", "PDF saved to: $filePath");
+
+        final result = await OpenFile.open(filePath);
+        if (result.type == ResultType.noAppToOpen) {
+          Get.snackbar("Notice", "PDF downloaded, but no app found to open it.");
+        }
+
+      } catch (e) {
+        showSnackBar(
+          'Failed to download/open PDF',
+          backgroundColor: Colors.red,
+          titleText: 'Error',
+        );
+        //  Get.snackbar("Error", "Failed to download/open PDF: $e");
       }
-
-      if (saveDir == null) {
-        Get.snackbar("Error", "Unable to access file directory.");
-        return;
-      }
-
-      final String filePath = "${saveDir.path}/$fileName";
-
-      Dio dio = Dio();
-      await dio.download(pdfUrl, filePath);
-
-      Get.snackbar("Download Complete", "PDF saved to: $filePath");
-
-      final result = await OpenFile.open(filePath);
-      if (result.type == ResultType.noAppToOpen) {
-        Get.snackbar("Notice", "PDF downloaded, but no app found to open it.");
-      }
-
-    } catch (e) {
-      Get.snackbar("Error", "Failed to download/open PDF: $e");
+    }else{
+      showSnackBar(
+        'Pdf not found.',
+        backgroundColor: Colors.red,
+        titleText: 'Error',
+      );
     }
+
   }
 
   Future<bool> requestStoragePermission() async {
@@ -201,41 +235,71 @@ class Honharkhiladicontroller extends GetxController {
     // ✅ Optional: Only needed on Android 10+ for file access
     final granted = await requestStoragePermission();
     if (!granted) {
-      Get.snackbar("Permission Denied", "Storage permission is required.");
+      showSnackBar(
+        'Storage permission is required.',
+        backgroundColor: Colors.red,
+        titleText: 'Permission Denied',
+      );
+     // Get.snackbar("Permission Denied", "Storage permission is required.");
       return;
     }
 
-    try {
-      // ✅ Choose directory based on platform
-      Directory? appDir;
-      if (Platform.isAndroid) {
-        appDir = await getExternalStorageDirectory(); // Android
-      } else if (Platform.isIOS) {
-        appDir = await getApplicationDocumentsDirectory(); // iOS safe
+    if(fileUrl.isNotEmpty){
+      try {
+        // ✅ Choose directory based on platform
+        Directory? appDir;
+        if (Platform.isAndroid) {
+          appDir = await getExternalStorageDirectory(); // Android
+        } else if (Platform.isIOS) {
+          appDir = await getApplicationDocumentsDirectory(); // iOS safe
+        }
+
+        if (appDir == null) {
+          showSnackBar('Could not access device storage."');
+          // Get.snackbar("Error", "Could not access device storage.");
+          return;
+        }
+
+        final String filePath = "${appDir.path}/$fileName";
+
+        // ⬇️ Download file
+        Dio dio = Dio();
+        await dio.download(fileUrl, filePath);
+
+        showSnackBar(
+          'File saved to: $filePath',
+          backgroundColor: Colors.green,
+          titleText: 'Download Complete',
+        );
+        // Get.snackbar("Download Complete", "File saved to: $filePath");
+
+        // 📂 Open the downloaded file
+        final result = await OpenFile.open(filePath);
+        if (result.type == ResultType.noAppToOpen) {
+         /*  showSnackBar(
+             'Install an app to open .xlsx files.',
+             backgroundColor: Colors.green,
+            titleText: 'No App Found',
+           );*/
+        //  Get.snackbar("No App Found", "Install an app to open .xlsx files.");
+        }
+
+      } catch (e) {
+        showSnackBar(
+          'Failed to download/open file',
+          backgroundColor: Colors.red,
+          titleText: 'Error',
+        );
+        //  Get.snackbar("Error", "Failed to download/open file: $e");
       }
-
-      if (appDir == null) {
-        Get.snackbar("Error", "Could not access device storage.");
-        return;
-      }
-
-      final String filePath = "${appDir.path}/$fileName";
-
-      // ⬇️ Download file
-      Dio dio = Dio();
-      await dio.download(fileUrl, filePath);
-
-      Get.snackbar("Download Complete", "File saved to: $filePath");
-
-      // 📂 Open the downloaded file
-      final result = await OpenFile.open(filePath);
-      if (result.type == ResultType.noAppToOpen) {
-        Get.snackbar("No App Found", "Install an app to open .xlsx files.");
-      }
-
-    } catch (e) {
-      Get.snackbar("Error", "Failed to download/open file: $e");
+    }else{
+      showSnackBar(
+        'xlsx not found',
+        backgroundColor: Colors.red,
+        titleText: 'Error',
+      );
     }
+
   }
 
 

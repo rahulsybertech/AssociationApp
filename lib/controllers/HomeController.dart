@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
@@ -85,7 +86,12 @@ class HomeController extends GetxController {
       final ApiResponse? model = await apiService.logOut(mobile!, token!);
       isDataLoading.value = false;
       if (model != null) {
-        showSnackBar(model.message);
+        showSnackBar(
+          model.message,
+          backgroundColor: Colors.green,
+          titleText: 'Success',
+        );
+       // showSnackBar(model.message);
         await box.erase();
 
         Get.offAllNamed(RouteConstant.loginScreen);

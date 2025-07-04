@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:newapp/utils/utils.dart';
 
 class ImagePickerController extends GetxController {
   final ImagePicker _picker = ImagePicker();
@@ -57,11 +58,10 @@ class ImagePickerController extends GetxController {
 
         // ✅ Validate banner size (e.g., minimum 900x300 and aspect ratio around 3:1)
         if (width < 600 || height < 300 || aspectRatio < 1.0 || aspectRatio > 3.5) {
-          Get.snackbar(
-            'Invalid Banner Size',
-            'Banner must be at least 600x300 pixels with approx 3:1 ratio',
-            backgroundColor: Colors.red.shade100,
-            colorText: Colors.black,
+          showSnackBar(
+            'Banner must be at least 600x300 pixels with approx 3:1 ratio.',
+            backgroundColor: Colors.red,
+            titleText: 'Invalid Banner Size',
           );
           return;
         }

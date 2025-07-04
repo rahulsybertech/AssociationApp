@@ -109,7 +109,12 @@ class DisputeController extends GetxController {
         if (data['success'] == true) {
         //  clearFormFields();
           Get.back();
-          showSnackBar("Record Save Successfully!!.");
+          showSnackBar(
+            'Record Save Successfully!!',
+            backgroundColor: Colors.green,
+            titleText: 'Success',
+          );
+
           return true;
         } else {
           showSnackBar(data['message'] ?? "Something went wrong.");
@@ -163,7 +168,7 @@ class DisputeController extends GetxController {
         } else if (type == 'Supplier') {
           supplierList.clear();
         }
-        showSnackBar('No records found.');
+  //      showSnackBar('No records found.');
       }
     } catch (e) {
       showSnackBar('Failed to fetch data: $e');

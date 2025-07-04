@@ -108,13 +108,13 @@ class RegisterAccountScreen extends StatelessWidget {
                 return Column(
                   children: [
                     if (type == 'Customer' || type == 'Supplier' || type == 'Other') ...[
-                      _buildTextField("Firm Name", controller.firmNameController),
+                      _buildTextField("Firm Name", controller.firmNameController,isRequired: true),
                     ],
 
-                    _buildTextField("Owner Name", controller.ownerNameController),
-                    _buildTextField("Mobile Number", controller.mobileController, keyboardType: TextInputType.phone,),
-                    _buildTextField("Address", controller.addressController),
-                    _buildTextField("Station Name", controller.stationNameController),
+                    _buildTextField("Owner Name", controller.ownerNameController,isRequired: true),
+                    _buildTextField("Mobile Number", controller.mobileController, keyboardType: TextInputType.phone,isRequired: true),
+                    _buildTextField("Address", controller.addressController,isRequired: true),
+                    _buildTextField("Station Name", controller.stationNameController,isRequired: true),
                /*     _buildTextField("Station Name", controller.stationNameController),
                     _buildTextField("User Category", controller.categoryController),*/
           /*          DropdownButton<String>(
@@ -384,8 +384,8 @@ class RegisterAccountScreen extends StatelessWidget {
       String label,
       TextEditingController controller, {
         TextInputType keyboardType = TextInputType.text,
-      })
-  {
+        bool isRequired = false,
+      }) {
     List<TextInputFormatter>? inputFormatters;
     int? maxLength;
 
@@ -394,10 +394,9 @@ class RegisterAccountScreen extends StatelessWidget {
       maxLength = 10;
       keyboardType = TextInputType.phone;
     } else if (label == "GST No.") {
-      // Allow uppercase letters and digits only
       inputFormatters = [
         FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]')),
-        UpperCaseTextFormatter(), // optional: force uppercase input
+        UpperCaseTextFormatter(),
       ];
       keyboardType = TextInputType.text;
       maxLength = 15;
@@ -411,13 +410,32 @@ class RegisterAccountScreen extends StatelessWidget {
         maxLength: maxLength,
         inputFormatters: inputFormatters,
         decoration: InputDecoration(
-          labelText: label,
-          counterText: "", // hide character counter
+          label: RichText(
+            text: TextSpan(
+              text: label,
+              style: TextStyle(
+                color: Colors.grey.shade700,
+                fontSize: 16,
+              ),
+              children: isRequired
+                  ? [
+                TextSpan(
+                  text: ' *',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 16,
+                  ),
+                ),
+              ]
+                  : [],
+            ),
+          ),
+          counterText: "",
           filled: true,
           fillColor: Colors.white,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: Colors.grey.shade300), // fallback
+            borderSide: BorderSide(color: Colors.grey.shade300),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
@@ -425,13 +443,55 @@ class RegisterAccountScreen extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: Colors.grey), // darker on focus
+            borderSide: BorderSide(color: Colors.grey),
           ),
         ),
       ),
     );
-
   }
+
+
+
+  /*Widget _buildTextField(
+      String label,l
+      TextEditingController controller, {
+        TextInputType keyboardType = TextInputType.text,
+        bool isRequired = false, // 👈 Add this flag
+      }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        RichText(
+          text: TextSpan(
+            text: label,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.black,
+            ),
+            children: isRequired
+                ? const [
+              TextSpan(
+                text: ' *',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              )
+            ]
+                : [],
+          ),
+        ),
+        const SizedBox(height: 6),
+        TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+          ),
+        ),
+      ],
+    );
+  }*/
 
 
   void goToDetailsScreen() async {

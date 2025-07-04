@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:get_storage/get_storage.dart';
@@ -55,11 +56,17 @@ class BannerScreenController extends GetxController {
         showSnackBar(model.message);
 
       } else {
-        showSnackBar('No records found.');
+        showSnackBar(
+          'No records found.',
+          backgroundColor: Colors.green,
+          titleText: 'Success',
+        );
+
       }
     } catch (e) {
       isDataLoading.value = false;
       isUploading.value = false;
+
       showSnackBar('Failed to fetch data: $e');
     }
   }
@@ -102,7 +109,11 @@ class BannerScreenController extends GetxController {
       isDataLoading.value = false;
 
       if (result != null && result.isNotEmpty) {
-        showSnackBar('Banner deleted successfully.');
+        showSnackBar(
+          'Banner deleted successfully.',
+          backgroundColor: Colors.green,
+          titleText: 'Success',
+        );
 
         controller.bannerList();
 
