@@ -388,6 +388,7 @@ class RegisterAccountScreen extends StatelessWidget {
       }) {
     List<TextInputFormatter>? inputFormatters;
     int? maxLength;
+    TextCapitalization textCapitalization = TextCapitalization.none;
 
     if (label == "Mobile Number") {
       inputFormatters = [FilteringTextInputFormatter.digitsOnly];
@@ -396,10 +397,12 @@ class RegisterAccountScreen extends StatelessWidget {
     } else if (label == "GST No.") {
       inputFormatters = [
         FilteringTextInputFormatter.allow(RegExp(r'[A-Z0-9]')),
-        UpperCaseTextFormatter(),
+        // Optional: uncomment to enforce uppercase even when pasted
+        // UpperCaseTextFormatter(),
       ];
       keyboardType = TextInputType.text;
       maxLength = 15;
+      textCapitalization = TextCapitalization.characters; // ⬅️ Capital letters
     }
 
     return Padding(
@@ -409,6 +412,7 @@ class RegisterAccountScreen extends StatelessWidget {
         keyboardType: keyboardType,
         maxLength: maxLength,
         inputFormatters: inputFormatters,
+        textCapitalization: textCapitalization, // ⬅️ Added here
         decoration: InputDecoration(
           label: RichText(
             text: TextSpan(
@@ -449,6 +453,7 @@ class RegisterAccountScreen extends StatelessWidget {
       ),
     );
   }
+
 
 
 
