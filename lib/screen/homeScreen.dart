@@ -46,7 +46,7 @@ class homeScreen extends StatelessWidget {
  /*     {"icon": "assets/icons/accounts.png", "label": "Add Accounts"},
       {"icon": "assets/icons/bad.png", "label": "Dispute Details"},
       {"icon": "assets/icons/bad.png", "label": "Update Banners"},
-      {"icon": "assets/icons/accounts.png", "label": "All Accounts"},*/
+      {"icon": "assets/icons/accounts.png", "label": "All ouAccnts"},*/
     ];
 
     final size = MediaQuery.of(context).size;
@@ -56,12 +56,12 @@ class homeScreen extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-        leading: IconButton(
+       /* leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             SystemNavigator.pop();
           },
-        ),
+        ),*/
         title: Image.asset(
           'assets/icons/app_icon.png',
           width: 40,

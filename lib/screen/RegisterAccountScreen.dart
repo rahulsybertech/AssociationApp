@@ -140,12 +140,30 @@ class RegisterAccountScreen extends StatelessWidget {
                         value: controller.selectedCategory.value.isEmpty
                             ? null
                             : controller.selectedCategory.value,
-                        decoration: InputDecoration(
-                          labelText: "User Category",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
+                decoration: InputDecoration(
+                label: RichText(
+                text: TextSpan(
+                text: 'User Category',
+                style: const TextStyle(
+                color: Colors.black,
+                fontSize: 16,
+                ),
+                children: const [
+                TextSpan(
+                text: ' *',
+                style: TextStyle(
+                color: Colors.red,
+                fontSize: 16,
+                ),
+                ),
+                ],
+                ),
+                ),
+                border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                ),
+                ),
+
                         items: ['Admin', 'Executive'].map((category) {
                           return DropdownMenuItem(
                             value: category,

@@ -23,8 +23,12 @@ class loginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final Logincontroller controller = Get.put(Logincontroller());
     final TextEditingController mobileController = TextEditingController();
+    return GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus(); // Hide keyboard when tapped outside
+        },
 
-    return Obx(
+    child:  Obx(
           () => Scaffold(
         resizeToAvoidBottomInset: true, // important!
         body: SafeArea(
@@ -110,7 +114,7 @@ class loginScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 
 }

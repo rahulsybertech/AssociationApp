@@ -39,190 +39,202 @@ class honharKhiladiScreen extends StatelessWidget {
           children: [
             /// Custom App Bar
             Padding(
-              padding: const EdgeInsets.all(0.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              child: controller.screen == 'Honhar'
+                  ? Row(
                 children: [
-                  Row(
-                    children: [
-                      if (controller.screen == 'Honhar') ...[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              /// 🔙 Back Icon
-                              GestureDetector(
-                                onTap: () => Get.back(),
-                                child: const Icon(Icons.arrow_back, color: Colors.red,size: 35,),
-
-                              ),
-
-                              /// 🔽 Dropdown Filter
-                              Padding(
-                                padding: const EdgeInsets.only(left: 16.0), // 👈 Add start margin here
-                                child: Obx(() => PopupMenuButton<String>(
-                                  onSelected: (value) {
-                                    selectedFilter.value = value;
-                                    GetStorage().write('category', value);
-                                    controller.searchController.clear();
-                                    controller.filterHonharList("");
-                                    controller.getList(value);
-                                    controller.downloadAccountDetailsReportPdf(value);
-                                    controller.downloadAccountDetailsReportXml(value);
-                                  },
-                                  itemBuilder: (context) => const [
-                                    PopupMenuItem(value: "Customer", child: Text("Customer")),
-                                    PopupMenuItem(value: "Supplier", child: Text("Supplier")),
-                                  ],
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.filter_alt, color: Colors.red),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        selectedFilter.value,
-                                        style: const TextStyle(
-                                          color: Colors.red,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const Icon(Icons.arrow_drop_down, color: Colors.red),
-                                    ],
-                                  ),
-                                )),
-                              ),
-
-                            ],
-                          ),
-                        ),
-                      ]
-
-                      /// For All Accounts
-                      else if (controller.screen == 'All Accounts') ...[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: const [
-                              BackButton(color: Colors.black),
-                              Text(
-                                'All Accounts',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-
-
-                    ],
+                  /// 🔙 Back Button (Left)
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.red, size: 30),
+                    onPressed: () => Get.back(),
+                    splashRadius: 24, // Optional: controls ripple size
                   ),
 
-                  const SizedBox(height: 5),
-                  Container(
-                    height: 50,
-                    margin: const EdgeInsets.all(10),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(color: Colors.red.shade100),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: controller.searchController,
-                            onChanged: controller.filterHonharList,
-                            decoration: const InputDecoration(
-                              hintText: 'Search by name, station, etc.',
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          padding: const EdgeInsets.all(8),
-                          child: const Icon(Icons.search, color: Colors.white, size: 20),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 16.0,right: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Left: Records found
-                        Obx(() => Text(
-                          "${controller.filteredList.length} Records Found",
-                          style: const TextStyle(
-                            color: Colors.red,
-                            fontSize: 12,
-                          ),
-                        )),
 
-                        // Right: Clickable image to open PDF
-                        if(controller.screen=='Honhar')
-                          if(controller.filteredList.length>0)
-                        Row(
+                  /// 🔽 Dropdown Filter (Center)
+                  Expanded(
+                    child: Center(
+                      child: Obx(() => PopupMenuButton<String>(
+                        onSelected: (value) {
+                          selectedFilter.value = value;
+                          GetStorage().write('category', value);
+                          controller.searchController.clear();
+                          controller.filterHonharList("");
+                          controller.getList(value);
+                          controller.downloadAccountDetailsReportPdf(value);
+                          controller.downloadAccountDetailsReportXml(value);
+                        },
+                        itemBuilder: (context) => const [
+                          PopupMenuItem(value: "Customer", child: Text("Customer")),
+                          PopupMenuItem(value: "Supplier", child: Text("Supplier")),
+                        ],
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            // PDF Icon with tap
-                            GestureDetector(
-                              onTap: controller.downloadAndOpenPdf,
-                              child: Column(
-                                children: [
-                                  Image.asset(
-                                    'assets/icons/download_pdf.png',
-                                    width: 30,
-                                    height: 30,
-                                    color: Colors.red,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  const Text(
-                                    'PDF',
-                                    style: TextStyle(fontSize: 12, color: Colors.black),
-                                  ),
-                                ],
+                            const Icon(Icons.filter_alt, color: Colors.red),
+                            const SizedBox(width: 6),
+                            Text(
+                              selectedFilter.value,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(width: 20), // spacing between PDF and XML
-
-                            // XML Icon with tap
-                            GestureDetector(
-                              onTap: controller.downloadAndOpenXml, // define this in your controller
-                              child: Column(
-                                children: [
-                                  Image.asset(
-                                    'assets/icons/xml.png',
-                                    width: 30,
-                                    height: 30,
-                                    color: Colors.red,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  const Text(
-                                    'XML',
-                                    style: TextStyle(fontSize: 12, color: Colors.black),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            const Icon(Icons.arrow_drop_down, color: Colors.red),
                           ],
                         ),
-
-                      ],
+                      )),
                     ),
-                  )
+                  ),
 
+                  /// 🛠 App Icon (Right)
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Image.asset(
+                        'assets/icons/app_icon.png',
+                        width: 36,
+                        height: 36,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ],
+              )
+                  : Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    /// Left - Back Button
+                    const Expanded(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: BackButton(color: Colors.black),
+                      ),
+                    ),
+
+                    /// Center - Title
+                    const Expanded(
+                      child: Center(
+                        child: Text(
+                          'All Accounts',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    /// Right - App Icon
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Image.asset(
+                          'assets/icons/app_icon.png',
+                          width: 36,
+                          height: 36,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  ],
+
+              ),
+            ),
+            const SizedBox(height: 5),
+            Container(
+              height: 50,
+              margin: const EdgeInsets.all(10),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(color: Colors.red.shade100),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: controller.searchController,
+                      onChanged: controller.filterHonharList,
+                      decoration: const InputDecoration(
+                        hintText: 'Search by name, station, etc.',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    child: const Icon(Icons.search, color: Colors.white, size: 20),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0), // ⬅️ Add left & right padding here
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  /// Left: Record Count
+                  Obx(() => Text(
+                    "${controller.filteredList.length} Records Found",
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontSize: 12,
+                    ),
+                  )),
+
+                  /// Right: PDF/XML Buttons (reactive)
+                  Obx(() {
+                    if (controller.screen == 'Honhar' && controller.filteredList.isNotEmpty) {
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          /// PDF Icon
+                          GestureDetector(
+                            onTap: controller.downloadAndOpenPdf,
+                            child: Column(
+                              children: [
+                                Image.asset(
+                                  'assets/icons/download_pdf.png',
+                                  width: 30,
+                                  height: 30,
+                                  color: Colors.red,
+                                ),
+                                const SizedBox(height: 4),
+                                const Text('PDF', style: TextStyle(fontSize: 12, color: Colors.black)),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+
+                          /// XML Icon
+                          GestureDetector(
+                            onTap: controller.downloadAndOpenXml,
+                            child: Column(
+                              children: [
+                                Image.asset(
+                                  'assets/icons/xml.png',
+                                  width: 30,
+                                  height: 30,
+                                  color: Colors.red,
+                                ),
+                                const SizedBox(height: 4),
+                                const Text('XML', style: TextStyle(fontSize: 12, color: Colors.black)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    } else {
+                      return const SizedBox(); // If no icons needed, return empty widget
+                    }
+                  }),
                 ],
               ),
             ),
@@ -234,7 +246,7 @@ class honharKhiladiScreen extends StatelessWidget {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                if (controller.filteredList.isEmpty) {
+                if (controller.isInitialLoadComplete.value && controller.filteredList.isEmpty) {
                   return const Center(child: Text('No data found'));
                 }
 

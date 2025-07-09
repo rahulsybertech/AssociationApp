@@ -96,7 +96,7 @@ class RegisterAccountController extends GetxController {
   {
     isDataLoading.value = true;
 
-    final url = Uri.parse('https://association.ssspltd.com/api/Account/SaveUpdateAccountDetails');
+    final url = Uri.parse('https://association.ssspltd.com/api/Account/SaveUpdateAccountDetailsl');
 
     final box = GetStorage();
     String? token = box.read('token');
@@ -128,7 +128,7 @@ class RegisterAccountController extends GetxController {
     if (accountType.value == 'Other') {
       bodyMap["accountCategory"] = selectedCategory.value;
     } else {
-      bodyMap["accountCategory"] = accountCate;
+     // bodyMap["accountCategory"] = accountCate;
     }
 
     final body = jsonEncode(bodyMap);
@@ -190,6 +190,7 @@ class RegisterAccountController extends GetxController {
     final address = addressController.text.trim();
     final category = categoryController.text.trim();
     final firmName = firmNameController.text.trim();
+    final stationName = stationNameController.text.trim();
     final gst = gstController.text.trim();
 
     // 1. Check owner name
@@ -218,10 +219,14 @@ class RegisterAccountController extends GetxController {
       showSnackBar('Enter address');
       return false;
     }
+    if (stationName.isEmpty) {
+      showSnackBar('Enter station name');
+      return false;
+    }
 
-    if (accountType == "Others") {
-      if (category.isEmpty) {
-        showSnackBar('Enter category');
+    if (accountType == "Other") {
+      if (selectedCategory.value.isEmpty) {
+        showSnackBar('Select category');
         return false;
       }
     }

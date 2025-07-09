@@ -28,7 +28,14 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     pageController = PageController();
+
     getBannerList();
+  }
+  @override
+  void onReady() {
+    super.onReady();
+    // 👇 Called every time the screen becomes visible again
+    getBannerList(); // 🔁 Refresh on back
   }
   Future<void> getBannerList() async {
     isDataLoading.value = true;
@@ -76,7 +83,6 @@ class HomeController extends GetxController {
 
   Future<void> logOutParam() async {
     isDataLoading.value = true;
-
     final APIService apiService = APIService();
     final box = GetStorage();
     String? token = box.read('token');

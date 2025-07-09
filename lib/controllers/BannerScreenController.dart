@@ -51,7 +51,9 @@ class BannerScreenController extends GetxController {
       id.value="0";
       getBannerList();
       isUploading.value = false;
-      if (model != null) {
+      controller.getBannerList();
+      showSnackBar("Record Save Successfully!!");
+    /*  if (model != null) {
         controller.getBannerList();
         showSnackBar(model.message);
 
@@ -62,7 +64,7 @@ class BannerScreenController extends GetxController {
           titleText: 'Success',
         );
 
-      }
+      }*/
     } catch (e) {
       isDataLoading.value = false;
       isUploading.value = false;

@@ -95,7 +95,7 @@ class DisputeController extends GetxController {
       "supplierId": supplierId.value,
       "disputeAmt": disputeAmt.value,
       "disputeImagePath": selectedFileName.value,
-      "settelledAmt": settelledAmt.value
+      "settelledAmt": settelledAmt.value.isEmpty ? 0 : double.parse(settelledAmt.value),
 
     });
     print("Body"+body.toString());
@@ -176,7 +176,7 @@ class DisputeController extends GetxController {
   }
 
 
-  final disputeAmt = ''.obs;
+  final disputeAmt = '0'.obs;
   var settelledAmt = ''.obs;
   var recordId = ''.obs;
   var isSettledAmtInvalid = false.obs;
@@ -255,20 +255,23 @@ class DisputeController extends GetxController {
       if (disputeAmt.value.isEmpty) {
         showSnackBar('Enter disputed amt.');
         return;
-      } else if (settelledAmt.value.isEmpty) {
-        showSnackBar('Enter settled amt.');
-        return;
-      } else if (double.tryParse(settelledAmt.value) != null &&
-          double.tryParse(disputeAmt.value) != null &&
-          double.parse(settelledAmt.value) > double.parse(disputeAmt.value)) {
-        showSnackBar('Settled amt. cannot be greater than disputed amt.');
-        return;
+      }
+
+      // If settledAmt is provided, then validate it's not more than disputeAmt
+      if (settelledAmt.value.isNotEmpty) {
+        final double? settled = double.tryParse(settelledAmt.value);
+        final double? dispute = double.tryParse(disputeAmt.value);
+
+        if (settled != null && dispute != null && settled > dispute) {
+          showSnackBar('Settled amt. cannot be greater than disputed amt.');
+          return;
+        }
       }
 
       try {
         isDataLoading.value = true; // ✅ Show loader
 
-        await saveUpdateAccountDetails(); // 👈 This should be an async method
+        await saveUpdateAccountDetails(); // 👈 Your async saving logic
 
         Get.snackbar('Success', 'Dispute saved');
       } catch (e) {
@@ -278,6 +281,7 @@ class DisputeController extends GetxController {
       }
     }
   }
+
 
 }
 

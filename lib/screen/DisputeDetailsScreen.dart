@@ -21,7 +21,11 @@ class DisputeDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final DisputeController controller = Get.put(DisputeController());
     final ImagePickerController imageController = Get.put(ImagePickerController());
-    return Scaffold(
+    return GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus(); // Hide keyboard when tapped outside
+        },
+    child:  Scaffold(
       appBar: AppBar(
         title: const Text('Dispute Details'),
         leading: BackButton(),
@@ -101,38 +105,50 @@ class DisputeDetailsScreen extends StatelessWidget {
 
               const SizedBox(height: 12),
 
-              // Disputed Amount
-              TextFormField(
-                controller: controller.disputeAmtController,
-                decoration: const InputDecoration(
-                  labelText: 'Disputed Amt.',
-                  border: OutlineInputBorder(),
+              GestureDetector(
+                onTap: () => FocusScope.of(context).unfocus(), // Hides keyboard
+                child: SingleChildScrollView( // Optional for scrollable content
+                  child: Padding(
+                    padding: const EdgeInsets.all(0.0),
+                    child: Column(
+                      children: [
+
+                        /// Disputed Amount
+                        TextFormField(
+                          controller: controller.disputeAmtController,
+                          decoration: const InputDecoration(
+                            labelText: 'Disputed Amt.',
+                            border: OutlineInputBorder(),
+                          ),
+                          keyboardType: TextInputType.number,
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        /// Settled Amount
+                        TextFormField(
+                          controller: controller.settelledAmtController,
+                          decoration: const InputDecoration(
+                            labelText: 'Settled Amt.',
+                            border: OutlineInputBorder(),
+                          ),
+                          keyboardType: TextInputType.number,
+                          onChanged: (val) {
+                            final dispute = double.tryParse(controller.disputeAmt.value) ?? 0;
+                            final settled = double.tryParse(val) ?? 0;
+
+                            controller.settelledAmt.value = val;
+
+                            controller.isSettledAmtInvalid.value = settled > dispute;
+                          },
+                        ),
+
+                      ],
+                    ),
+                  ),
                 ),
-                keyboardType: TextInputType.number,
               ),
 
-              const SizedBox(height: 12),
-
-              TextFormField(
-                controller: controller.settelledAmtController,
-                decoration: const InputDecoration(
-                  labelText: 'Settled Amt.',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-                onChanged: (val) {
-                  final dispute = double.tryParse(controller.disputeAmt.value) ?? 0;
-                  final settled = double.tryParse(val) ?? 0;
-
-                  controller.settelledAmt.value = val;
-
-                  if (settled > dispute) {
-                    controller.isSettledAmtInvalid.value = true;
-                  } else {
-                    controller.isSettledAmtInvalid.value = false;
-                  }
-                },
-              ),
 
               // ❗ Error message
               Obx(() => controller.isSettledAmtInvalid.value
@@ -235,14 +251,13 @@ class DisputeDetailsScreen extends StatelessWidget {
                   controller.isDataLoading.value = true;
 
                   final File? imageFile = imageController.pickedImage.value;
-                  final String? base64Image = imageFile != null
+                  final String base64Image = imageFile != null
                       ? base64Encode(imageFile.readAsBytesSync())
-                      : null;
+                      : "";
 
                   controller.isDataLoading.value = false;
-                  controller.selectedFileName.value = base64Image!;
-                    controller.saveDispute(); // ⬅️ Call your save method
-
+                  controller.selectedFileName.value = base64Image;
+                  controller.saveDispute();
                 },
                 child: controller.isDataLoading.value
                     ? const SizedBox(
@@ -262,7 +277,7 @@ class DisputeDetailsScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 

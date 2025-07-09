@@ -25,6 +25,7 @@ import 'categoryController.dart';
 
 class Honharkhiladicontroller extends GetxController {
   var isDataLoading = false.obs;
+  var isInitialLoadComplete = false.obs;
   var pdtUrl = 'Customer'.obs;
   var xmlUrl = 'Customer'.obs;
   var screen = 'Honhar'.obs;
@@ -60,7 +61,6 @@ class Honharkhiladicontroller extends GetxController {
 
   Future<void> getList(String type) async {
     isDataLoading.value = true;
-
     final APIService apiService = APIService();
     final box = GetStorage();
     String? token = box.read('token');
@@ -74,9 +74,11 @@ class Honharkhiladicontroller extends GetxController {
       isDataLoading.value = false;
 
       if (mcqs != null && mcqs.isNotEmpty) {
+
         honharList.value = mcqs.map((e) => Honharlist.fromJson(e)).toList();
         filteredList.value = honharList; // 👈 Initialize filtered list
       } else {
+        isInitialLoadComplete.value = true;
         honharList.clear(); // optional: clear if no data
         filteredList.clear();
       //  showSnackBar('No records found.');
