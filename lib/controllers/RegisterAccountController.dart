@@ -96,7 +96,7 @@ class RegisterAccountController extends GetxController {
   {
     isDataLoading.value = true;
 
-    final url = Uri.parse('https://association.ssspltd.com/api/Account/SaveUpdateAccountDetailsl');
+    final url = Uri.parse('https://association.ssspltd.com/api/Account/SaveUpdateAccountDetails');
 
     final box = GetStorage();
     String? token = box.read('token');
