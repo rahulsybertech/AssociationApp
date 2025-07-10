@@ -47,7 +47,7 @@ List<GetPage> getPages = [
 
   GetPage(
     name: RouteConstant.loginScreen,
-    page: () => const loginScreen(),
+    page: () => LoginScreen(), // ✅ correct capitalization, no const
     transition: Transition.noTransition,
   ),
 
