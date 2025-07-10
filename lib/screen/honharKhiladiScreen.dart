@@ -258,6 +258,11 @@ class honharKhiladiScreen extends StatelessWidget {
                       onTap: () {
                         if(controller.screen=='Honhar'){
                           GetStorage().write('id', supplier.id);
+                          if(selectedFilter=="Customer"){
+                            GetStorage().write('category', selectedFilter);
+                          }else{
+                            GetStorage().write('category', selectedFilter);
+                          }
                           Get.toNamed(
                             RouteConstant.detailsScreen,
                             arguments: {
@@ -295,6 +300,7 @@ class honharKhiladiScreen extends StatelessWidget {
                                       onTap: () {
                                         if (supplier.accountImagePath != null &&
                                             supplier.accountImagePath!.isNotEmpty) {
+
                                           Get.to(() => FullScreenImageView(assetPath: supplier.accountImagePath));
                                         }
                                       },

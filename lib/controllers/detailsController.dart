@@ -41,11 +41,11 @@ class detailsController extends GetxController {
     String actualCategory;
 
     if (category.value.trim().isEmpty) {
-      actualCategory = "customer";
+      actualCategory = "Customer";
     } else if (category.value.toLowerCase() == "customer") {
-      actualCategory = "customer";
+      actualCategory = "Customer";
     } else {
-      actualCategory = "supplier";
+      actualCategory = "Supplier";
     }
 
     getList(actualCategory);
@@ -62,22 +62,22 @@ class detailsController extends GetxController {
     final APIService apiService = APIService();
     final box = GetStorage();
     String? token = box.read('token');
-    String? category = box.read('category');
+  //  String? category = box.read('category');
     String? id = box.read('id')?.toString();
 
     selectedcategory.value = type; // ✅ Set the selected category
 
 
 // If category is null or empty, assign 'customer'
-    if (category == null || category.isEmpty) {
+   /* if (category == null || category.isEmpty) {
       category = 'Customer';
-    }
+    }*/
 
 
 
     try {
       final List<Map<String, dynamic>>? mcqs =
-     await apiService.disputeDetailsByAccountId(category!,id!, token!);
+     await apiService.disputeDetailsByAccountId(type!,id!, token!);
     //  await apiService.disputeDetailsByAccountId("Customer","6", token!);
 
       isDataLoading.value = false;

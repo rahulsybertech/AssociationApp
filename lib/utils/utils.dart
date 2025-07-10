@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:intl/intl.dart';
 
 import 'appcolors.dart';
 
@@ -31,6 +32,20 @@ showSnackBar(
           : null,
     );
   }
+}
+
+
+ String formatAmount(dynamic value) {
+if (value == null) return '0/-';
+
+// Clean any commas
+final raw = value.toString().replaceAll(",", "");
+
+// Try parse
+final number = double.tryParse(raw);
+if (number == null) return '0/-';
+
+return "${NumberFormat('#,##0.##', 'en_IN').format(number)}/-";
 }
 
 

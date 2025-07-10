@@ -12,6 +12,7 @@ import 'package:newapp/controllers/detailsController.dart';
 import 'package:newapp/customWidgets/customText.dart';
 import 'package:newapp/utils/FullyCustomAppBar.dart';
 import 'package:newapp/utils/appcolors.dart';
+import 'package:newapp/utils/utils.dart';
 
 import '../controllers/HomeController.dart';
 import '../controllers/HonharKhiladiController.dart';
@@ -155,14 +156,14 @@ class detailsScreen extends StatelessWidget {
                                   _infoCard(
                                     'assets/icons/dispute.png',
                                     'Dispute Amount',
-                                    supplier.disputeAmt.toString()+ '/-',
+                                    supplier.disputeAmt.toString(),
                                     context,
                                   ),
                                   const SizedBox(width: 12),
                                   _infoCard(
                                     'assets/icons/part_payment.png',
                                     'Part Payment',
-                                    supplier.settelledAmt.toString()+ '/-',
+                                    supplier.settelledAmt.toString(),
                                     context,
                                   ),
                                 ],
@@ -216,7 +217,7 @@ class detailsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  amount,
+                  formatAmount(amount),
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
@@ -228,6 +229,9 @@ class detailsScreen extends StatelessWidget {
       ),
     );
   }
+
+
+
 
 
 

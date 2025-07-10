@@ -27,6 +27,7 @@ class Honharkhiladicontroller extends GetxController {
   var isDataLoading = false.obs;
   var isInitialLoadComplete = false.obs;
   var pdtUrl = 'Customer'.obs;
+  var selectFilter = 'Customer'.obs;
   var xmlUrl = 'Customer'.obs;
   var screen = 'Honhar'.obs;
   var selectedcategory = "Easy".obs; //default easy
