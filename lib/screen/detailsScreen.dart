@@ -143,7 +143,7 @@ class detailsScreen extends StatelessWidget {
 
                             //    _infoRow(Icons.account_balance_wallet, 'GST', ),
                             _infoRow('assets/icons/gst.png', 'GST', supplier.gstNo),
-                            _infoRow('assets/icons/user.png', 'Owner Name', supplier.name ?? '-'),
+                            _infoRow('assets/icons/user.png', 'Brand name', supplier.name ?? '-'),
                             _infoRow('assets/icons/station.png', 'Station', supplier.station),
                             _infoRow('assets/icons/home.png', 'Address', supplier.address),
 

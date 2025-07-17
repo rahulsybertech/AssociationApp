@@ -60,13 +60,20 @@ class honharKhiladiScreen extends StatelessWidget {
                       child: Center(
                         child: Obx(() => PopupMenuButton<String>(
                           onSelected: (value) {
-                            selectedFilter.value = value;
+                            controller.selectedFilter.value = value;
+
+                            // ✅ Correct
                             GetStorage().write('category', value);
+                            GetStorage().write('category1', value);
                             controller.searchController.clear();
                             controller.filterHonharList("");
                             controller.getList(value);
                             controller.downloadAccountDetailsReportPdf(value);
                             controller.downloadAccountDetailsReportXml(value);
+                          },
+                          onCanceled: () {
+                            // 👇 Optional: Reset to default or perform fallback logic
+                            controller.selectedFilter.value = GetStorage().read('category') ?? 'Customer';
                           },
                           itemBuilder: (context) => const [
                             PopupMenuItem(value: "Customer", child: Text("Customer")),
@@ -78,7 +85,7 @@ class honharKhiladiScreen extends StatelessWidget {
                               const Icon(Icons.filter_alt, color: Colors.red),
                               const SizedBox(width: 6),
                               Text(
-                                selectedFilter.value,
+                                controller.selectedFilter.value,
                                 style: const TextStyle(
                                   color: Colors.red,
                                   fontWeight: FontWeight.bold,
@@ -262,10 +269,10 @@ class honharKhiladiScreen extends StatelessWidget {
                         onTap: () {
                           if(controller.screen=='Honhar'){
                             GetStorage().write('id', supplier.id);
-                            if(selectedFilter=="Customer"){
-                              GetStorage().write('category', selectedFilter);
+                            if(controller.selectedFilter.value=="Customer"){
+                              GetStorage().write('category', controller.selectedFilter.value);
                             }else{
-                              GetStorage().write('category', selectedFilter);
+                              GetStorage().write('category', controller.selectedFilter.value);
                             }
                             Get.toNamed(
                               RouteConstant.detailsScreen,

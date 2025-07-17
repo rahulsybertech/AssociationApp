@@ -31,8 +31,8 @@ class detailsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    pastScores = GetStorage().read('past_scores') ?? [];
     // Read initial value from GetStorage
+ //   category.value = GetStorage().read('category')?.toString() ?? '';
     category.value = GetStorage().read('category')?.toString() ?? '';
     // Listen to changes if needed
     GetStorage().listenKey('category', (value) {

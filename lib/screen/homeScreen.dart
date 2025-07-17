@@ -34,14 +34,14 @@ class homeScreen extends StatelessWidget {
 
     menuItems = accountCate == "Admin"
         ? [
-      {"icon": "assets/icons/honhar.png", "label": "Honhar khiladi"},
+      {"icon": "assets/icons/honhar.png", "label": "Defaulter Party"},
       {"icon": "assets/icons/accounts.png", "label": "Add Accounts"},
       {"icon": "assets/icons/bad.png", "label": "Dispute Details"},
       {"icon": "assets/icons/bad.png", "label": "Update Banners"},
       {"icon": "assets/icons/accounts.png", "label": "Update Accounts"},
     ]
         : [
-      {"icon": "assets/icons/honhar.png", "label": "Honhar khiladi"},
+      {"icon": "assets/icons/honhar.png", "label": "Defaulter Party"},
 
  /*     {"icon": "assets/icons/accounts.png", "label": "Add Accounts"},
       {"icon": "assets/icons/bad.png", "label": "Dispute Details"},
@@ -180,7 +180,7 @@ class homeScreen extends StatelessWidget {
                             'screen': 'All Accounts',
                           });
                           break;
-                        case 'Honhar khiladi':
+                        case 'Defaulter Party':
                           Get.toNamed(RouteConstant.honharScreen, arguments: {
                             'screen': 'Honhar',
                           });

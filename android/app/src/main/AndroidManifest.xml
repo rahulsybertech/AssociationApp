@@ -21,6 +21,9 @@
         android:label="GNRVA"
         android:name="${applicationName}"
         android:usesCleartextTraffic="true"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+
         android:requestLegacyExternalStorage="true"
         android:icon="@mipmap/img_1">
         <activity

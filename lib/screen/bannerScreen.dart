@@ -367,14 +367,14 @@ class bannerScreen extends StatelessWidget {
       builder: (_) => SafeArea(
         child: Wrap(
           children: [
-            ListTile(
+           /* ListTile(
               leading: const Icon(Icons.camera_alt),
               title: const Text("Take a Photo"),
               onTap: () {
                 Navigator.pop(context);
                 imagePickerController.pickImage3(ImageSource.camera);
               },
-            ),
+            ),*/
             ListTile(
               leading: const Icon(Icons.photo_library),
               title: const Text("Choose from Gallery"),

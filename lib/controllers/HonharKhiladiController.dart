@@ -29,6 +29,7 @@ class Honharkhiladicontroller extends GetxController {
   var pdtUrl = 'Customer'.obs;
   var selectFilter = 'Customer'.obs;
   var xmlUrl = 'Customer'.obs;
+  var selectedFilter = 'Customer'.obs;
   var screen = 'Honhar'.obs;
   var selectedcategory = "Easy".obs; //default easy
   List<dynamic> pastScores = [];
