@@ -24,6 +24,7 @@ class RegisterAccountController extends GetxController {
   final ownerNameController = TextEditingController();
   final mobileController = TextEditingController();
   final gstController = TextEditingController();
+  final memberShipIdController = TextEditingController();
   final categoryController = TextEditingController();
   final addressController = TextEditingController();
   final stationNameController = TextEditingController();
@@ -55,6 +56,7 @@ class RegisterAccountController extends GetxController {
       addressController.text = supplier.address ?? '';
       stationNameController.text = supplier.station ?? '';
       gstController.text = supplier.gstNo ?? '';
+      memberShipIdController.text = supplier.membershipNo ?? '';
       selectedCategory.value=supplier.accountCategory;
 
       if (supplier.accountImagePath?.isNotEmpty == true) {
@@ -89,6 +91,7 @@ class RegisterAccountController extends GetxController {
     required String station,
     required String stateName,
     required String gstNo,
+    required String memberShipID,
     required String deviceID,
     required String accountImagePath,
     required String shopImagePath,
@@ -119,6 +122,7 @@ class RegisterAccountController extends GetxController {
       "station": station,
       "stateName": stateName,
       "gstNo": gstNo,
+      "membershipNo": memberShipID,
       "deviceID": deviceID,
       "accountImagePath": image,
       "shopImagePath": image,
@@ -198,13 +202,13 @@ class RegisterAccountController extends GetxController {
     if (firmName.isEmpty) {
       showSnackBar(
         'Enter Firm name.',
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.red,
         titleText: 'Error',
       );
       return false;
     }
     if (ownerName.isEmpty) {
-      showSnackBar('Enter owner name');
+      showSnackBar('Enter Brand name');
       return false;
     }
 
@@ -272,6 +276,7 @@ class RegisterAccountController extends GetxController {
       station: stationNameController.text.trim(),
       stateName: stationNameController.text.trim(),
       gstNo: gst,
+      memberShipID: memberShipIdController.text.trim(),
       deviceID: 'YOUR_DEVICE_ID',
       accountImagePath: imagefileNew!!,
       shopImagePath: imagefileNew,
@@ -289,6 +294,7 @@ class RegisterAccountController extends GetxController {
     ownerNameController.dispose();
     mobileController.dispose();
     gstController.dispose();
+    memberShipIdController.dispose();
     addressController.dispose();
     super.onClose();
   }
@@ -299,6 +305,7 @@ class RegisterAccountController extends GetxController {
     mobileController.clear();
     addressController.clear();
     categoryController.clear();
+    memberShipIdController.clear();
 /*    stationController.clear();
     stateNameController.clear();*/
     gstController.clear();

@@ -2,12 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-
-import '../customWidgets/customText.dart';
+import 'package:newapp/controllers/splashController.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../routes.dart';
-
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 // Assuming you have this CustomText widget somewhere
@@ -34,6 +31,8 @@ class CustomText extends StatelessWidget {
   }
 }
 
+
+
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
 
@@ -42,12 +41,15 @@ class StartScreen extends StatefulWidget {
 }
 
 class _StartScreenState extends State<StartScreen> {
+  final SplashController controller = Get.put(SplashController());
+
   final box = GetStorage();
 
   @override
   void initState() {
     super.initState();
     _checkToken();
+
   }
 
   void _checkToken() async {
@@ -59,8 +61,10 @@ class _StartScreenState extends State<StartScreen> {
     if (token != null && token.isNotEmpty) {
       // Token exists, navigate to home screen
       // Replace with your actual home route or screen widget
-      Get.offNamed(RouteConstant.homeScreen);
+      controller.getAppVersion();
+
     }else{
+
       Get.offNamed(RouteConstant.loginScreen);
     }
 
@@ -78,8 +82,8 @@ class _StartScreenState extends State<StartScreen> {
             children: [
               Image.asset(
                 'assets/icons/app_icon.png',
-                height: 100,
-                width: 100,
+                height: 250,
+                width: 250,
                 fit: BoxFit.contain,
               ),
               const SizedBox(height: 24),
@@ -109,5 +113,8 @@ class _StartScreenState extends State<StartScreen> {
       ),
     );
   }
+
+
+
 }
 

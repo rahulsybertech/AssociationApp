@@ -24,6 +24,7 @@ import 'categoryController.dart';
 class detailsController extends GetxController {
   var isDataLoading = false.obs;
   RxString category = ''.obs;
+  RxString name = ''.obs;
   var pdtUrl = 'Customer'.obs;
 
   var selectedcategory = "Easy".obs; //default easy
@@ -34,6 +35,7 @@ class detailsController extends GetxController {
     // Read initial value from GetStorage
  //   category.value = GetStorage().read('category')?.toString() ?? '';
     category.value = GetStorage().read('category')?.toString() ?? '';
+    name.value = GetStorage().read('NAME')?.toString() ?? '';
     // Listen to changes if needed
     GetStorage().listenKey('category', (value) {
       category.value = value.toString();
@@ -258,6 +260,7 @@ class Honharlist {
   final String name;
   final int id;
   final String mobile;
+  final String ownerName;
   final String station;
   final String address;
   final double disputeAmt;
@@ -269,6 +272,7 @@ class Honharlist {
     required this.name,
     required this.id,
     required this.mobile,
+    required this.ownerName,
     required this.station,
     required this.address,
     required this.disputeAmt,
@@ -284,6 +288,7 @@ class Honharlist {
           ? json['id']
           : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
       mobile: json['mobileNo'] ?? '',
+      ownerName: json['ownerName'] ?? '',
       station: json['station'] ?? '',
       address: json['address'] ?? '',
       disputeAmt: double.tryParse(json['disputeAmt']?.toString() ?? '0') ?? 0.0,

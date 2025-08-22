@@ -7,6 +7,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:newapp/controllers/DisputeController.dart';
 import 'package:newapp/customWidgets/customLoader.dart';
 import 'package:newapp/customWidgets/customText.dart';
@@ -17,10 +18,25 @@ class DisputeDetailsScreen extends StatelessWidget {
   const DisputeDetailsScreen({super.key});
 
 
+
   @override
   Widget build(BuildContext context) {
+    final _formKey = GlobalKey<FormState>(); // Put this in your widget class (e.g., controller or stateful widget)
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+    final GlobalKey<FormState> caseNumberKey = GlobalKey<FormState>();
     final DisputeController controller = Get.put(DisputeController());
     final ImagePickerController imageController = Get.put(ImagePickerController());
+    final partyTypes = ['138', 'Civil',];
+    final List<String> suggestions = [
+      'Apple',
+      'Banana',
+      'Cherry',
+      'Mango',
+      'Orange',
+      'Pineapple',
+      'Strawberry',
+      'Watermelon',
+    ];
     return GestureDetector(
         onTap: () {
           FocusScope.of(context).unfocus(); // Hide keyboard when tapped outside
@@ -41,69 +57,253 @@ class DisputeDetailsScreen extends StatelessWidget {
           ),
         ],
       ),
+
       body: Form(
-        key: controller.formKey,
+        key: controller.selectCustomerKey,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
               // Customer Dropdown
-              Obx(() => DropdownSearch<CustomerList>(
-                selectedItem: controller.selectedCustomerlist.value,
-                items: controller.customerList,
-                itemAsString: (customer) => customer.accountName ?? "",
-                onChanged: (val) {
-                  if (val != null) {
-                    controller.customerId.value = val.id.toString();
-                    controller.selectedCustomerlist.value = val;
+              Autocomplete<CustomerList>(
+                optionsBuilder: (TextEditingValue textEditingValue) {
+                  if (textEditingValue.text.isEmpty) {
+                    return controller.customerList;
                   }
+                  return controller.customerList.where((customer) {
+                    return (customer.accountName ?? "")
+                        .toLowerCase()
+                        .contains(textEditingValue.text.toLowerCase());
+                  });
                 },
-                dropdownDecoratorProps: DropDownDecoratorProps(
-                  dropdownSearchDecoration: InputDecoration(
-                    labelText: 'Select Customer',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                validator: (val) => val == null ? 'Select a customer' : null,
-                popupProps: PopupProps.menu(
-                  showSearchBox: true,
-                  searchFieldProps: TextFieldProps(
-                    decoration: InputDecoration(hintText: "Search Customer"),
-                  ),
-                ),
-              ))
+                displayStringForOption: (customer) => customer.accountName ?? "",
+                onSelected: (CustomerList selection) {
+                  controller.customerId.value = selection.id.toString();
+                  controller.selectedCustomerlist.value = selection;
+                  controller.formKey.currentState?.validate();
+                  controller.customerError.value = null;
+                },
+                fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+                  if (controller.selectedCustomerlist.value != null) {
+                    textEditingController.text =
+                        controller.selectedCustomerlist.value!.accountName ?? "";
+                  }
+
+                  // Wrap only this part in Obx for error text
+                  return Obx(() => TextField(
+                    controller: textEditingController,
+                    focusNode: focusNode,
+                    decoration: InputDecoration(
+                      labelText: 'Select Customer',
+                      border: OutlineInputBorder(),
+                      errorText: controller.customerError.value,
+                    ),
+                  ));
+                },
+                optionsViewBuilder: (context, onSelected, options) {
+                  return Align(
+                    alignment: Alignment.topLeft,
+                    child: Material(
+                      elevation: 4,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxHeight: 200, maxWidth: 300),
+                        child: ListView.builder(
+                          padding: EdgeInsets.zero,
+                          itemCount: options.length,
+                          itemBuilder: (context, index) {
+                            final customer = options.elementAt(index);
+                            return ListTile(
+                              title: Text(customer.accountName ?? ""),
+                              onTap: () => onSelected(customer),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              )
+
               ,
 
               const SizedBox(height: 12),
 
               // Supplier Dropdown
-              Obx(() => DropdownSearch<CustomerList>(
-                selectedItem: controller.selectedSuplierlist.value,
-                items: controller.supplierList,
-                itemAsString: (supplier) => supplier.accountName ?? "",
-                onChanged: (val) {
-                  if (val != null) {
-                    controller.supplierId.value = val.id.toString();
-                    controller.selectedSuplierlist.value = val;
-                    controller.getDisputeDetails();
+              Autocomplete<CustomerList>(
+                optionsBuilder: (TextEditingValue textEditingValue) {
+                  if (textEditingValue.text.isEmpty) {
+                    return controller.supplierList; // show all when empty
                   }
+                  return controller.supplierList.where((supplier) =>
+                      (supplier.accountName ?? '')
+                          .toLowerCase()
+                          .contains(textEditingValue.text.toLowerCase()));
                 },
-                dropdownDecoratorProps: DropDownDecoratorProps(
-                  dropdownSearchDecoration: InputDecoration(
-                    labelText: 'Select Supplier',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                validator: (val) => val == null ? 'Select a supplier' : null,
-                popupProps: PopupProps.menu(
-                  showSearchBox: true,
-                  searchFieldProps: TextFieldProps(
-                    decoration: InputDecoration(hintText: "Search Supplier"),
-                  ),
-                ),
-              )),
+                displayStringForOption: (CustomerList supplier) =>
+                supplier.accountName ?? '',
+                onSelected: (CustomerList selection) {
+                  controller.supplierId.value = selection.id.toString();
+                  controller.selectedSuplierlist.value = selection;
+                  controller.getDisputeDetails();
+                },
+                fieldViewBuilder:
+                    (context, textEditingController, focusNode, onFieldSubmitted) {
+                  // Set initial value if already selected
+                  if (controller.selectedSuplierlist.value != null) {
+                    textEditingController.text =
+                        controller.selectedSuplierlist.value?.accountName ?? '';
+                  }
+                  return TextField(
+                    controller: textEditingController,
+                    focusNode: focusNode,
+                    decoration: const InputDecoration(
+                      labelText: 'Select Supplier',
+                      border: OutlineInputBorder(),
+                    ),
+                  );
+                },
+                optionsViewBuilder: (context, onSelected, options) {
+                  return Align(
+                    alignment: Alignment.topLeft,
+                    child: Material(
+                      elevation: 4,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxHeight: 200, maxWidth: 300),
+                        child: ListView.builder(
+                          padding: EdgeInsets.zero,
+                          itemCount: options.length,
+                          itemBuilder: (context, index) {
+                            final CustomerList option = options.elementAt(index);
+                            return ListTile(
+                              title: Text(option.accountName ?? ''),
+                              onTap: () => onSelected(option),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
 
               const SizedBox(height: 12),
+
+              TextFormField(
+                controller: controller.dateController,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  labelText: 'Dispute Date',
+                  border: OutlineInputBorder(),
+                  suffixIcon: Icon(Icons.calendar_today),
+                ),
+                onTap: () async {
+                  DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: controller.caseDate.value,
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2100),
+                  );
+                  if (pickedDate != null) {
+                    controller.caseDate.value = pickedDate;
+                    controller.dateController.text =
+                        DateFormat('dd-MM-yyyy').format(pickedDate);
+                  }
+                },
+          /*      validator: (value) =>
+                value == null || value.isEmpty ? 'Select a dispute date' : null,*/
+              ),
+              const SizedBox(height: 12),
+              Obx(() => Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Case Type: ',
+                    style: TextStyle(color: Colors.black, fontSize: 15),
+                  ),
+                  ...partyTypes.map((type) => Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Radio<String>(
+                        value: type,
+                        groupValue: controller.selectedCaseType.value,
+                        activeColor: Colors.red,
+                        onChanged: controller.isEditing
+                            ? null
+                            : (val) {
+                          controller.selectedCaseType.value = val!;
+                        },
+                      ),
+                      Text(
+                        type,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: controller.selectedCaseType.value == type
+                              ? Colors.red
+                              : Colors.black,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                    ],
+                  ))
+                ],
+              )),
+
+
+
+              //const SizedBox(height: 12),
+
+
+              Form(
+                key: controller.formKey1,
+                child: GestureDetector(
+                  onTap: () => FocusScope.of(context).unfocus(),
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(1.0),
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            controller: controller.advocateNameController,
+                            decoration: const InputDecoration(
+                              labelText: 'Advocate Name',
+                              border: OutlineInputBorder(),
+                            ),
+                            keyboardType: TextInputType.text,
+                            validator: (_) => null, // ✅ Optional now
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              Form(
+                key: controller.formKey2,
+                child: GestureDetector(
+                  onTap: () => FocusScope.of(context).unfocus(),
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(1.0),
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            controller: controller.caseNumberController,
+                            decoration: const InputDecoration(
+                              labelText: 'Case No',
+                              border: OutlineInputBorder(),
+                            ),
+                            keyboardType: TextInputType.text,
+                            validator: (_) => null, // ✅ Optional now
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
 
               GestureDetector(
                 onTap: () => FocusScope.of(context).unfocus(), // Hides keyboard
@@ -148,8 +348,6 @@ class DisputeDetailsScreen extends StatelessWidget {
                   ),
                 ),
               ),
-
-
               // ❗ Error message
               Obx(() => controller.isSettledAmtInvalid.value
                   ? const Padding(
@@ -246,8 +444,21 @@ class DisputeDetailsScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
                 onPressed: controller.isDataLoading.value
-                    ? null // Disable while loading
+                    ? null
                     : () async {
+                  // 🔍 Validate both forms
+                  final isForm1Valid = controller.formKey1.currentState?.validate() ?? false;
+                  final isForm2Valid = controller.formKey2.currentState?.validate() ?? false;
+                  final isSelectCustomerKey = controller.selectCustomerKey.currentState?.validate() ?? false;
+
+             if(!isSelectCustomerKey){
+               return;
+             }
+                  if (!isForm1Valid || !isForm2Valid) {
+                    // ❌ If any form is invalid, return early
+                    return;
+                  }
+
                   controller.isDataLoading.value = true;
 
                   final File? imageFile = imageController.pickedImage.value;
@@ -255,9 +466,12 @@ class DisputeDetailsScreen extends StatelessWidget {
                       ? base64Encode(imageFile.readAsBytesSync())
                       : "";
 
-                  controller.isDataLoading.value = false;
                   controller.selectedFileName.value = base64Image;
-                  controller.saveDispute();
+
+                  // ✅ Save logic
+                  await controller.saveDispute();
+
+                  controller.isDataLoading.value = false;
                 },
                 child: controller.isDataLoading.value
                     ? const SizedBox(
@@ -270,6 +484,7 @@ class DisputeDetailsScreen extends StatelessWidget {
                 )
                     : const Text("SAVE", style: TextStyle(color: Colors.white)),
               ))
+
 
 
             ],

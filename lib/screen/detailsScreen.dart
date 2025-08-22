@@ -1,23 +1,9 @@
-
-
-
-
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:http/http.dart' as box;
 import 'package:newapp/controllers/detailsController.dart';
-import 'package:newapp/customWidgets/customText.dart';
-import 'package:newapp/utils/FullyCustomAppBar.dart';
-import 'package:newapp/utils/appcolors.dart';
 import 'package:newapp/utils/utils.dart';
-
-import '../controllers/HomeController.dart';
-import '../controllers/HonharKhiladiController.dart';
-import '../model/Supplier.dart';
-
 class detailsScreen extends StatelessWidget {
   const detailsScreen({super.key});
   
@@ -27,11 +13,9 @@ class detailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final detailsController controller = Get.put(detailsController());
-    //   controller.getList();
-    final RxString selectedFilter = 'SUPPLIER'.obs;
-   // final String id = Get.arguments['id'];
+    final RxString
 
-
+    selectedFilter = 'SUPPLIER'.obs;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -107,6 +91,14 @@ class detailsScreen extends StatelessWidget {
                 ],
               ),
             ),
+            SizedBox(height: 6),
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: headerTitle(
+                (controller.category.value == "Supplier" ? "Supplier" : "Customer") + " Name",
+                controller.name.value,
+              ),
+            ),
 
             // 🔽 Supplier List
             Expanded(
@@ -139,11 +131,8 @@ class detailsScreen extends StatelessWidget {
                               supplier.name,
                             ),
                             _infoRow('assets/icons/mobile.png', 'Mobile No.', supplier.mobile),
-                            //   _infoRow(Icons.account_balance_wallet, 'GST', supplier.gstNo ?? '-'),
-
-                            //    _infoRow(Icons.account_balance_wallet, 'GST', ),
                             _infoRow('assets/icons/gst.png', 'GST', supplier.gstNo),
-                            _infoRow('assets/icons/user.png', 'Brand name', supplier.name ?? '-'),
+                            _infoRow('assets/icons/user.png', 'Brand name', supplier.ownerName ?? '-'),
                             _infoRow('assets/icons/station.png', 'Station', supplier.station),
                             _infoRow('assets/icons/home.png', 'Address', supplier.address),
 
@@ -177,6 +166,7 @@ class detailsScreen extends StatelessWidget {
                 );
 
               }),
+
             ),
           ],
         ),
@@ -185,20 +175,35 @@ class detailsScreen extends StatelessWidget {
 
   }
   Widget _infoCard(String iconPath, String title, String amount, BuildContext context) {
-    double cardWidth = (MediaQuery.of(context).size.width - 48) / 2; // 24 total horizontal padding + 12 spacing
+    double cardWidth = (MediaQuery.of(context).size.width - 48) / 2;
+
+    // Convert amount string to double (safely)
+    double parsedAmount = double.tryParse(amount.replaceAll(',', '').replaceAll('₹', '').trim()) ?? 0.0;
+
+    Color amountColor;
+    String lowerTitle = title.toLowerCase();
+
+    if (lowerTitle.contains('part payment')) {
+      amountColor = Colors.green;
+    } else if (lowerTitle.contains('dispute amount')) {
+      amountColor = Colors.red;
+    } else {
+      amountColor = parsedAmount >= 0 ? Colors.green : Colors.red;
+    }
 
     return Container(
       width: cardWidth,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-
-       /* boxShadow: [
+        borderRadius: BorderRadius.circular(8),
+        color: Colors.white,
+        boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: Offset(0, 2),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
           ),
-        ],*/
+        ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,7 +223,11 @@ class detailsScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   formatAmount(amount),
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    color: amountColor,
+                  ),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),
@@ -229,19 +238,6 @@ class detailsScreen extends StatelessWidget {
       ),
     );
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
   Widget _infoRow(String icon, String title, String value) {
@@ -256,6 +252,38 @@ class detailsScreen extends StatelessWidget {
             height: 20,
             /*   color: Colors.grey[700], // Optional: tint the image*/
           ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                text: "$title : ",
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+                children: [
+                  TextSpan(
+                    text: value,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.normal,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  Widget headerTitle( String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
           const SizedBox(width: 8),
           Expanded(
             child: RichText(

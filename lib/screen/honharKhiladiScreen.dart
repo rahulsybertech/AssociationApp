@@ -274,6 +274,7 @@ class honharKhiladiScreen extends StatelessWidget {
                             }else{
                               GetStorage().write('category', controller.selectedFilter.value);
                             }
+                            GetStorage().write('NAME', supplier.name);
                             Get.toNamed(
                               RouteConstant.detailsScreen,
                               arguments: {

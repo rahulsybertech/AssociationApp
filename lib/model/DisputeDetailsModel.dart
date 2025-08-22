@@ -4,6 +4,10 @@ class DisputeDetailsModel {
   final int supplierId;
   final String disputeAmt;
   final String settelledAmt;
+  final String caseDate;
+  final String advocateName;
+  final String caseNo;
+  final String caseType;
   final String date;
   final String disputeImagePath;
 
@@ -13,6 +17,10 @@ class DisputeDetailsModel {
     required this.supplierId,
     required this.disputeAmt,
     required this.settelledAmt,
+    required this.caseDate,
+    required this.advocateName,
+    required this.caseNo,
+    required this.caseType,
     required this.date,
     required this.disputeImagePath,
   });
@@ -24,6 +32,10 @@ class DisputeDetailsModel {
       supplierId: json['supplierId'] ?? 0,
       disputeAmt: (json['disputeAmt'] ?? 0).toString(),
       settelledAmt: (json['settelledAmt'] ?? 0).toString(),
+      caseDate: (json['caseDate'] ?? 0).toString(),
+      advocateName: (json['advocateName'] ?? 0).toString(),
+      caseNo: (json['caseNo'] ?? 0).toString(),
+      caseType: (json['caseType'] ?? 0).toString(),
       date: json['date'] ?? '',
       disputeImagePath: json['disputeImagePath'] ?? '',
     );

@@ -408,6 +408,7 @@ class Honharlist {
   final String accountType;
   final String accountCategory;
   final String ownerName;
+  final String membershipNo;
   final int id;
   final String mobile;
   final String gstNo;
@@ -420,6 +421,7 @@ class Honharlist {
     required this.accountType,
     required this.accountCategory,
     required this.ownerName,
+    required this.membershipNo,
     required this.id,
     required this.mobile,
     required this.gstNo,
@@ -434,6 +436,7 @@ class Honharlist {
       accountType: json['accountType'] ?? '',
       accountCategory: json['accountCategory'] ?? '',
       ownerName: json['ownerName'] ?? '',
+      membershipNo: json['membershipNo'] ?? '',
       id: json['id'] ?? '',
       mobile: json['mobileNo'] ?? '',
       gstNo: json['gstNo'] ?? '',

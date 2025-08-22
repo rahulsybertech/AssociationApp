@@ -91,8 +91,6 @@ class RegisterAccountScreen extends StatelessWidget {
                   );
                 }).toList(),
               )),
-
-
               /* const SizedBox(height: 20),*/
 
               // Conditionally render fields based on party type
@@ -111,7 +109,7 @@ class RegisterAccountScreen extends StatelessWidget {
                       _buildTextField("Firm Name", controller.firmNameController,isRequired: true),
                     ],
 
-                    _buildTextField("Owner Name", controller.ownerNameController,isRequired: true),
+                    _buildTextField("Brand Name", controller.ownerNameController,isRequired: true),
                     _buildTextField("Mobile Number", controller.mobileController, keyboardType: TextInputType.phone,isRequired: true),
                     _buildTextField("Address", controller.addressController,isRequired: true),
                     _buildTextField("Station Name", controller.stationNameController,isRequired: true),
@@ -133,6 +131,10 @@ class RegisterAccountScreen extends StatelessWidget {
 
                     if (type == 'Customer'||type == 'Supplier') ...[
                       _buildTextField("GST No.", controller.gstController),
+
+                    ],
+                    if (type == 'Supplier') ...[
+                      _buildTextField("Membership ID", controller.memberShipIdController),
 
                     ],
                     if (type == 'Other') ...[
