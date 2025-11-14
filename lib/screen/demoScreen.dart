@@ -1,50 +1,19 @@
+
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:newapp/controllers/splashController.dart';
-import 'package:url_launcher/url_launcher.dart';
-import '../routes.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:newapp/controllers/splashController.dart';
 
-// Assuming you have this CustomText widget somewhere
-class CustomText extends StatelessWidget {
-  final String text;
-  final double fontSize;
-  final FontWeight fontWeight;
-  final Color textColor;
-
-  const CustomText({
-    super.key,
-    required this.text,
-    required this.fontSize,
-    required this.fontWeight,
-    required this.textColor,
-  });
+class demoScreen extends StatefulWidget {
+  const demoScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: TextStyle(fontSize: fontSize, fontWeight: fontWeight, color: textColor),
-    );
-  }
-
+  State<demoScreen> createState() => _StartScreenState();
 }
-
-
-
-
-
-
-class StartScreen extends StatefulWidget {
-  const StartScreen({super.key});
-
-  @override
-  State<StartScreen> createState() => _StartScreenState();
-}
-
-class _StartScreenState extends State<StartScreen> {
+class _StartScreenState extends State<demoScreen> {
   final SplashController controller = Get.put(SplashController());
 
   final box = GetStorage();
@@ -52,28 +21,11 @@ class _StartScreenState extends State<StartScreen> {
   @override
   void initState() {
     super.initState();
-    _checkToken();
+  //  _checkToken();
 
   }
 
-  void _checkToken() async {
-    // Simulate a small delay (optional)
-    await Future.delayed(const Duration(seconds: 1));
 
-    String? token = box.read('token');
-
-    if (token != null && token.isNotEmpty) {
-      // Token exists, navigate to home screen
-      // Replace with your actual home route or screen widget
-      controller.getAppVersion();
-
-    }else{
-
-      Get.offNamed(RouteConstant.loginScreen);
-    }
-
-    // else do nothing and stay on this screen (show Play Now button)
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +45,7 @@ class _StartScreenState extends State<StartScreen> {
               const SizedBox(height: 24),
 
               // Play Now Button
-           /*   ElevatedButton(
+              /*   ElevatedButton(
                 onPressed: () {
                   Get.toNamed(RouteConstant.loginScreen);
                 },
@@ -120,4 +72,3 @@ class _StartScreenState extends State<StartScreen> {
 
 
 }
-

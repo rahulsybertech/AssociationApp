@@ -55,6 +55,8 @@ class HomeController extends GetxController {
             .map((e) => BannerItem.fromJson(e))
             .take(5) // This limits the list to the first 5 items
             .toList();
+        // 👉 Start Auto Slide Here
+        startAutoSlide();
       } else {
         bannerList.clear();
         //showSnackBar('No records found.');

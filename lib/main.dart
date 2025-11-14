@@ -42,6 +42,7 @@ List<GetPage> getPages = [
   GetPage(
     name: RouteConstant.startScreen,
     page: () => const StartScreen(),
+  //  page: () => const StartScreen(),
     transition: Transition.noTransition,
   ),
 

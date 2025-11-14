@@ -35,8 +35,6 @@ class BannerScreenController extends GetxController {
   }
 
   Future<void> bannerAddUpdateReq() async {
-
-
     final APIService apiService = APIService();
     final box = GetStorage();
     String? token = box.read('token');

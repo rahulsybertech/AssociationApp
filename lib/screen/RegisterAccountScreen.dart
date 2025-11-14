@@ -475,50 +475,6 @@ class RegisterAccountScreen extends StatelessWidget {
   }
 
 
-
-
-  /*Widget _buildTextField(
-      String label,l
-      TextEditingController controller, {
-        TextInputType keyboardType = TextInputType.text,
-        bool isRequired = false, // 👈 Add this flag
-      }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        RichText(
-          text: TextSpan(
-            text: label,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.black,
-            ),
-            children: isRequired
-                ? const [
-              TextSpan(
-                text: ' *',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              )
-            ]
-                : [],
-          ),
-        ),
-        const SizedBox(height: 6),
-        TextField(
-          controller: controller,
-          keyboardType: keyboardType,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-          ),
-        ),
-      ],
-    );
-  }*/
-
-
   void goToDetailsScreen() async {
     final Honharkhiladicontroller controller = Get.put(Honharkhiladicontroller());
     await Get.to(() => honharKhiladiScreen());
