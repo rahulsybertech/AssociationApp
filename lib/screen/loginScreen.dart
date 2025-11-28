@@ -27,6 +27,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final Logincontroller controller = Get.put(Logincontroller());
   final TextEditingController mobileController = TextEditingController();
+  final FocusNode mobileFocus = FocusNode();
+
 
   @override
   void dispose() {
@@ -41,89 +43,163 @@ class _LoginScreenState extends State<LoginScreen> {
         FocusScope.of(context).unfocus(); // Hide keyboard
       },
       child: Obx(
-            () => Scaffold(
-          resizeToAvoidBottomInset: true,
-          body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  const SizedBox(height: 80),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Image.asset(
-                      'assets/icons/app_icon.png',
-                      width: 100,
-                      height: 100,
+            () =>
+                Scaffold(
+                  resizeToAvoidBottomInset: true,
+                  body: SafeArea(
+                    child: Stack(
+                      children: [
+                        // MAIN CONTENT
+                        SingleChildScrollView(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 80),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Container(
+                                  width: double.infinity,   // match parent width
+                                  height: 150,              // container height// background color (optional)
+                                  child: Center(
+                                    child: Image.asset(
+                                      'assets/icons/app_icon.png',
+                                      width: 100,
+                                      height: 100,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              const SizedBox(height: 20),
+                              const CustomText(
+                                text: 'Garment Association',
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                textColor: redColor2,
+                              ),
+                              const SizedBox(height: 40),
+                              if(controller.showLoginFields.value)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 20), // move 20dp from right
+                                  child: TextField(
+                                    focusNode: mobileFocus,
+                                    controller: mobileController,
+                                    keyboardType: TextInputType.phone,
+                                    maxLength: 10,
+                                    decoration: InputDecoration(
+                                      hintText: "Enter your Mobile Number",
+                                      filled: true,
+                                      fillColor: Colors.grey.shade100,
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide.none,
+                                      ),
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                                    ),
+                                  ),
+                                ),
+
+                              const SizedBox(height: 30),
+
+                              // NORMAL SEND OTP BUTTON
+                              if(controller.showLoginFields.value)
+                              ElevatedButton(
+                                onPressed: () {
+                                  final number = mobileController.text.trim();
+                                  if (number.isNotEmpty && number.length == 10) {
+                                    controller.login(number);
+                                  } else {
+                                    showSnackBar('Enter valid mobile number');
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.pinkAccent,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 40, vertical: 15),
+                                  textStyle: const TextStyle(fontSize: 18),
+                                ),
+                                child: controller.isDataLoading.value
+                                    ? const Loader(color: Colors.white)
+                                    : const CustomText(
+                                  text: 'Send OTP',
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  textColor: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              ElevatedButton(
+                                onPressed: () {
+                                  controller.callAccessWithoutLogin();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.pinkAccent,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 40, vertical: 15),
+                                  textStyle: const TextStyle(fontSize: 18),
+                                ),
+                                child: CustomText(
+                                  text: 'Continue as guest',
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  textColor: Colors.white,
+                                ),
+                              ),
+
+                         /*     TextButton(
+                                onPressed: () => controller.callAccessWithoutLogin(),
+                                child: const Text(
+                                  'Continue as guest',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black87,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),*/
+                              const SizedBox(height: 100), // so content doesn't hide behind new button
+                            ],
+                          ),
+                        ),
+
+                        // NEW BOTTOM-RIGHT LOGIN BUTTON
+
+                        if(!controller.showLoginFields.value)
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 20, bottom: 20),
+                            child: SizedBox(
+                              height: 35,   // custom height
+                              width: 100,   // custom width (optional)
+                              child: FloatingActionButton.extended(
+                                onPressed: () {
+                                  controller.showLoginFields.value = true;
+                                  Future.delayed(const Duration(milliseconds: 200), () {
+                                    mobileFocus.requestFocus();   // <-- FOCUS + Keyboard opens
+                                  });
+                                },
+                                backgroundColor: Colors.pinkAccent,
+                                label: const Text(
+                                  "Login",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                icon: const Icon(Icons.login, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        )
+
+
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  const CustomText(
-                    text: 'Garment Association',
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    textColor: redColor2,
-                  ),
-                  const SizedBox(height: 40),
-                  TextField(
-                    controller: mobileController,
-                    keyboardType: TextInputType.phone,
-                    maxLength: 10,
-                    textInputAction: TextInputAction.done,
-                    decoration: InputDecoration(
-                      hintText: "Enter your Mobile Number",
-                      filled: true,
-                      fillColor: Colors.grey.shade100,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  ElevatedButton(
-                    onPressed: () {
-                      final number = mobileController.text.trim();
-                      if (number.isNotEmpty && number.length == 10) {
-                        controller.login(number);
-                      } else {
-                        showSnackBar('Enter valid mobile number');
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.pinkAccent,
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                      textStyle: const TextStyle(fontSize: 18),
-                    ),
-                    child: controller.isDataLoading.value
-                        ? const Loader(color: Colors.white)
-                        : const CustomText(
-                      text: 'Send OTP',
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      textColor: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextButton(
-                    onPressed: () {
-                      controller.callAccessWithoutLogin();
-                    },
-                    child: const Text(
-                      'Continue without login',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.redAccent,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+                ),
+
       ),
     );
   }
@@ -190,6 +266,7 @@ void showOtpBottomSheet(BuildContext context, {
             ),
           )),
           const SizedBox(height: 20),
+
           Obx(() => ElevatedButton(
             onPressed: () {
               final enteredOtp = otpcontrollerNew.otpController.text.trim();

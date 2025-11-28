@@ -1,20 +1,10 @@
-
-
-
-
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:newapp/customWidgets/customText.dart';
 import 'package:newapp/routes.dart';
 import 'package:newapp/utils/FullScreenImageView.dart';
-import 'package:newapp/utils/appcolors.dart';
-import 'package:url_launcher/url_launcher.dart';
-
-import '../controllers/HomeController.dart';
 import '../controllers/HonharKhiladiController.dart';
 import '../model/Supplier.dart';
 
@@ -66,10 +56,10 @@ class honharKhiladiScreen extends StatelessWidget {
                             GetStorage().write('category', value);
                             GetStorage().write('category1', value);
                             controller.searchController.clear();
-                            controller.filterHonharList("");
-                            controller.getList(value);
                             controller.downloadAccountDetailsReportPdf(value);
                             controller.downloadAccountDetailsReportXml(value);
+                            controller.filterHonharList("");
+                            controller.getList(value);
                           },
                           onCanceled: () {
                             // 👇 Optional: Reset to default or perform fallback logic
@@ -207,39 +197,93 @@ class honharKhiladiScreen extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             /// PDF Icon
-                            GestureDetector(
-                              onTap: controller.downloadAndOpenPdf,
-                              child: Column(
-                                children: [
-                                  Image.asset(
-                                    'assets/icons/download_pdf.png',
-                                    width: 30,
-                                    height: 30,
-                                    color: Colors.red,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  const Text('PDF', style: TextStyle(fontSize: 12, color: Colors.black)),
-                                ],
-                              ),
-                            ),
+                            Obx(() {
+                              return GestureDetector(
+                                onTap: controller.isLoading.value ? null : controller.downloadAndOpenPdf,
+                                child: Stack(
+                                  alignment: Alignment.center,  // loader appears exactly above icon
+                                  children: [
+                                    Column(
+                                      children: [
+                                        Opacity(
+                                          opacity: controller.isLoading.value ? 0.2 : 1, // fade the icon
+                                          child: Image.asset(
+                                            'assets/icons/download_pdf.png',
+                                            width: 30,
+                                            height: 30,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Opacity(
+                                          opacity: controller.isLoading.value ? 0.2 : 1,
+                                          child: const Text(
+                                            'PDF',
+                                            style: TextStyle(fontSize: 12, color: Colors.black),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+
+                                    /// Loader ABOVE the PDF icon
+                                    if (controller.isLoading.value)
+                                      const SizedBox(
+                                        width: 26,
+                                        height: 26,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              );
+                            }),
                             const SizedBox(width: 20),
 
                             /// XML Icon
-                            GestureDetector(
-                              onTap: controller.downloadAndOpenXml,
-                              child: Column(
-                                children: [
-                                  Image.asset(
-                                    'assets/icons/xml.png',
-                                    width: 30,
-                                    height: 30,
-                                    color: Colors.red,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  const Text('XML', style: TextStyle(fontSize: 12, color: Colors.black)),
-                                ],
-                              ),
-                            ),
+                            Obx(() {
+                              return GestureDetector(
+                                onTap: controller.isXmlLoading.value ? null : controller.downloadAndOpenXml,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Column(
+                                      children: [
+                                        Opacity(
+                                          opacity: controller.isXmlLoading.value ? 0.2 : 1,
+                                          child: Image.asset(
+                                            'assets/icons/xml.png',
+                                            width: 30,
+                                            height: 30,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Opacity(
+                                          opacity: controller.isXmlLoading.value ? 0.2 : 1,
+                                          child: const Text(
+                                            'XML',
+                                            style: TextStyle(fontSize: 12, color: Colors.black),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+
+                                    if (controller.isXmlLoading.value)
+                                      const SizedBox(
+                                        width: 26,
+                                        height: 26,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              );
+                            })
+
                           ],
                         );
                       } else {
@@ -317,6 +361,7 @@ class honharKhiladiScreen extends StatelessWidget {
                                           }
                                         },
                                         child: CircleAvatar(
+
                                           radius: 28,
                                           backgroundImage: (supplier.accountImagePath != null &&
                                               supplier.accountImagePath!.isNotEmpty)

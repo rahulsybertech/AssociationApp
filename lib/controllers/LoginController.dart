@@ -17,7 +17,7 @@ import 'package:url_launcher/url_launcher.dart';
 class Logincontroller extends GetxController {
   var isDataLoading = false.obs;
   var isVerifyOtp = false.obs;
-
+  var showLoginFields  = false.obs;
   var mobileNumber = "Easy".obs; //default easy
   List<dynamic> pastScores = [];
   @override

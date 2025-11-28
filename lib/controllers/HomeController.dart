@@ -46,8 +46,7 @@ class HomeController extends GetxController {
 
 
     try {
-      final List<Map<String, dynamic>>? mcqs =
-      await apiService.bannerList(token!);
+      final List<Map<String, dynamic>>? mcqs = await apiService.bannerList(token!);
 
       isDataLoading.value = false;
       if (mcqs != null && mcqs.isNotEmpty) {

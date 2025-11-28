@@ -28,7 +28,7 @@ class SplashController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    getAppVersion();
+ //   getAppVersion();
   }
 
   Future<void> getAppVersion() async {
@@ -72,7 +72,7 @@ class SplashController extends GetxController {
           showSnackBar(data['message'] ?? 'Something went wrong');
         }
       } else {
-        showSnackBar('Error: ${response.statusCode}');
+   //     showSnackBar('Error: ${response.statusCode}');
       }
     } catch (e) {
       showSnackBar('Login Error: $e');
