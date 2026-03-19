@@ -78,6 +78,7 @@ class _StartScreenState extends State<StartScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // 👈 set full screen white
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -91,26 +92,6 @@ class _StartScreenState extends State<StartScreen> {
                 fit: BoxFit.contain,
               ),
               const SizedBox(height: 24),
-
-              // Play Now Button
-           /*   ElevatedButton(
-                onPressed: () {
-                  Get.toNamed(RouteConstant.loginScreen);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurpleAccent,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const CustomText(
-                  text: 'Start Now',
-                  fontSize: 18,
-                  fontWeight: FontWeight.normal,
-                  textColor: Colors.white,
-                ),
-              ),*/
             ],
           ),
         ),

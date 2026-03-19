@@ -12,7 +12,6 @@ class honharKhiladiScreen extends StatelessWidget {
 
   const honharKhiladiScreen({super.key});
 
-
   @override
   Widget build(BuildContext context) {
 
@@ -455,9 +454,5 @@ class honharKhiladiScreen extends StatelessWidget {
       ),
     );
   }
-
-
-
-
 }
 
